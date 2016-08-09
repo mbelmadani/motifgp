@@ -1,0 +1,7 @@
+F=Fisher
+I=ScipyFisher
+D=Discrimination
+S=Support
+O=OddsRatio
+R=ScipyOddsRatio
+Q=FalseDiscoveryRate

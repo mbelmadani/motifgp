@@ -1,0 +1,1 @@
+python produce_fasta_junctions.py --re1 ACT[AG]AAAAAA --re2 TTTTTTACT[CT] -b CHEN/Smad1.pos.fasta --min-gap 2 --max-gap 3 -o SYNTHETIC/

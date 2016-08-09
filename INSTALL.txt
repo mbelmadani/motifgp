@@ -1,0 +1,127 @@
+This software was tested on:
+Operating systems: Ubuntu 14+, Debian 8, Windows 10
+Environment: Python 2.7.X, Python 3.4+
+
+Untested platforms/Upcoming support: MacOS
+
+We strongly recommend running MotifGP under Ubuntu/Debian using python2.7+.
+Core development is focused on Python2.7 as it is still the most popular version of Python to this date.
+Support for Python3 and Windows is added for convinience, but we cannot guarantee optimal performance under non-Ubuntu/Debian and python2 systems.
+We welcome any feedback that would help further cross-platform support. Please contact Manuel Belmadani <mbelm006@uottawa.ca> for support.
+
+The code can be converted to Python3 using the 2to3 tool.
+Command:
+$ 2to3 --output-dir=motifgp_python3 -W -n motifgp/
+
+=======================================================================================
+INSTALL INSTRUCTIONS:
+=======================================================================================
+INSTALLING PYTHON 2.7
+For Windows: Skip right to the Windows MotifGP installation as Python2.7 comes with miniconda.
+For Unix systems: If you already have Python2.7, you can skip this step. You can find your default python version by typing:
+
+Code:
+$ python -V
+> Python 2.7.10
+
+If you get a version below Python2.7, please install a new version.
+If python is already installed on your operating system, you should also have a version of Python2.x and Python3.x  installed. try
+
+Code:
+$ python2 -V
+or
+$ python3 -V
+
+
+And use python2 or python3 instead of python when following these instructions. If you install a package under python2, you will need to install it under python3 if you wish to use this version.
+
+Python 2.7 is important for the fisher's exact test function provided by the scipy package. If your version of python is older than 2.7, you can install a local version:
+-Download a version from Python.org (for example, https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tgz)
+
+Assuming Python-2.7.11,
+Code:
+$ tar zxf Python-2.7.11.tgz
+$ cd Python-2.7.11
+$ ./configure
+$ make altinstall prefix=~ exec-prefix
+$ cd ~/bin
+$ ln -s python2.7 python
+$ export PATH="/home/<YOURUSERNAME>/bin/:$PATH"
+
+To make this python interpreter the default python interpreter, add
+
+export PATH="/home/<YOURUSENAME>/bin/:$PATH"
+
+to your ~/.bashrc file.
+
+=======================================================================================
+INSTALLING MotifGP
+=======================================================================================
+
+==============
+= Linux      =
+==============
+You can install all necessary packages through the python package manager pip. If you don't have the pip, install it by downloading the get-pip.py install script.
+Code:
+$ wget https://bootstrap.pypa.io/get-pip.py
+$ python get-pip.py
+
+Note that to get pip for python3, you will have to run python3 get-pip.py, and use "pip3" instead of "pip".
+
+Install numpy:
+$ pip install --user numpy
+
+Install deap:
+$ pip install --user deap
+
+Install scipy (Optional, but required for scipy-based objectives)
+$ pip install --user scipy
+
+Test that MotifGP works:
+
+$ python motifgp.py -h
+Usage: motifgp.py [options]
+
+Options:
+(... list of program options ...)
+
+Additional tests can be ran with the nosetests library
+$ nosetests
+(... runs tests. They *should* all pass ...)
+
+================
+= Windows      =
+================
+The simplest way to install the dependencies on Windows is through the Anaconda/Miniconda Python distributions (http://conda.pydata.org/miniconda.html).
+It includes Python, and makes it easy to install numpy, scipy, pip and deap without having to download additional build tools.
+
+Install miniconda (a lightweight version of the Anaconda Python distribution.)
+  - If you don't already have Python, the graphical install will set its python binary as the default version
+  - If you do have Python, then the system will ask you if you want to make this the default Python through the PATH variable.
+  -- If you don't want to replace your existing Python by Anaconda's, just call Python, conda, and pip through:
+      C:\Users\<Your username>\Miniconda2\python
+      C:\Users\<Your username>\Miniconda2\Scripts\pip
+      C:\Users\<Your username>\Miniconda2\Scripts\conda
+
+  Install numpy:
+  > conda install numpy
+
+  Install scipy (Optional, but required for scipy-based objectives):
+  > conda install scipy
+
+  Install deap:
+  > pip install deap
+
+  Test that MotifGP works:
+  > python motifgp.py -h
+  Usage: motifgp.py [options]
+
+  Options:
+  (... list of program options ...)
+
+=======================================================================================
+USING MotifGP
+=======================================================================================
+
+- USAGE INSTRUCTIONS
+See README.txt, EXAMPLES.txt

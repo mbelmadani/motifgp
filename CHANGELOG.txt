@@ -1,0 +1,13 @@
+=== version 0.1.2 ===
+Objective mapping is now configurable via config/objectives.map
+Re-labeled the NSGA-II_R multiobjective algorithm to NSGAR
+
+=== version 0.1.1 ===
+Added Python3 support
+Added Windows support
+
+Readded: Non-scipy Fisher's exact test function was accidentally missing from previous release.
+Fixed: Bug with the crossover rate not being passed properly.
+
+=== version 0.1.0 ===
+Initial release

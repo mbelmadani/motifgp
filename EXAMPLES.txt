@@ -1,0 +1,160 @@
+To run theses examples, you will need fasta files to run as input. You can download peaks from T. Bailey's website under the supplemental material for DREME:
+
+Directory: http://tlbailey.bitbucket.org/supplementary_data/Bailey2011/
+Full set: http://tlbailey.bitbucket.org/supplementary_data/Bailey2011/CHEN.tgz
+
+We will assume that a directory named CHEN contains the fasta sequences under files with the .pos.fasta extension
+
+=======================================================================================
+0) Basic run: MotifGP for 10 generations
+=======================================================================================
+Description:
+	This example describes a typical dry run for MotifGP. 10 Generations will terminate quickly and will not explore as many possibilities as a longer execution would, but it's enough to give an idea of the expected output.
+
+	MotifGP will first print the information about the parameters. Once the motif finding starts, a log of statistics is printed for every generation. The statistics include:
+		gen: The current generation
+		evals: The number of solutions evaluated per run (excludes invalid/discarded individuals)
+		memoize: Number of solution fitnesses stored in cache
+		maxdepth: The maximum tree height encountered in all solutions in the population
+
+	Also, for each fitness objective, it prints the average, minimum, maximum and standard deviation of all the solutions in the population. The default objectives are Discrimination and Fisher's exact test.
+
+Command:
+$ python motifgp.py -p CHEN/Smad1.pos.fasta -n 10 --popsize=100
+
+Options:
+{'backpad': False, 'verbose': True, 'ngen': 10, 'bg_algo': 'dinuclShuffle', 'erase': None, 'inspector': False, 'no_seed': True, 'checkpoint_path': None, 'mutpb': 0.3, 'revcomp': False, 'cxpb': 0.7, 'random_seed': 42, 'matcher': 'grep', 'training_path': 'CHEN/Smad1.pos.fasta', 'hardmask': False, 'moo': 'FORTIN', 'background_path': None, 'short': 0, 'grammar': 'iupac', 'clutch': False, 'popsize': 100, 'timelimit': None, 'tag': 'default', 'output_path': './OUT/', 'hamming': False, 'fitness': 'DF'}
+[['Discrimination', <function fit_discrimination at 0x7ff8e03bfde8>, 1.0], ['Fisher', <function fit_fisher at 0x7ff8e03bfe60>, -1.0]]
+[<function fit_discrimination at 0x7ff8e03bfde8>, <function fit_fisher at 0x7ff8e03bfe60>]
+[1.0, -1.0]
+Creating pset for Regex
+HARDMASK: False
+Lengths: 1126 1126
+Writing background to runtime_tmp/Smad1.pos.fasta_background_855b93d2-30af-45f3-8c9b-eabebe8cb74b
+Writing positive to runtime_tmp/Smad1.pos.fasta_foreground_855b93d2-30af-45f3-8c9b-eabebe8cb74b
+Loading grep matcher
+Loaded.
+Initial pop size: 100
+Input sequences# 1126
+Control sequences# 1126
+Running algorithm: FORTIN
+Crossover/Mutations 0.7 0.3
+
+		                 Discrimination				                 Fisher
+				 ------------------------------------------------	----------------------------------------
+
+gen	   evals memoize maxdepth	avg     	max     	min		std     		avg   		max		min     	std
+0  	   0     0       4       	0.472553	0.531073	0  		0.109893		0.5565		1  		0.216836	0.133272
+0  	   100   108     8       	0.508866	0.807692	0.5		0.0345004		0.450098	0.522975	0.00117953	0.136495
+Writing gen 0 at path ./OUT/default/FORTIN/42/0.checkpoint
+1  	100   176     12	0.528465	1		0.5	0.0677212	0.319425	0.520942	0.00117953	0.170171
+
+... Truncated statistics output ...
+
+9   100       693    	 17		0.801609	1		0.622378	0.120997	0.0028191	0.0311113	1.7699e-06	0.00589427
+10  100       745    	 17      	0.814121	1       	0.628472	0.120244 	0.00317617	0.0311113	1.7699e-06 	0.00604208
+
+Writing gen 10 at path ./OUT/default/FORTIN/42/10.checkpoint
+Memoized 745 calls.
+regex in 4.4266140461 time
+NEF File written at ./OUT/default/FORTIN/42.nef																			
+=======================================================================================
+=======================================================================================
+1) Run MotifGP for 10 seconds
+=======================================================================================
+Description:
+	Instead of terminating on a generation, terminates after a certain amount of time has been elapsed.
+
+Command:	
+$ python motifgp.py -p CHEN/Smad1.pos.fasta --timelimit 10
+
+Ouput:
+.....
+regex in 10.3056499958 time
+NEF File written at ./OUT/default/FORTIN/42.nef
+
+
+=======================================================================================
+2) Search for motif including their reverse complement
+=======================================================================================
+Description:
+	For each individual to be evaluated, compute the reverse complement of the motif search sequences for both.
+	A sequence is matched if it contains the motif or its reverse complement.
+
+Command:	
+$ python motifgp.py -p CHEN/Smad1.pos.fasta -n 10 --revcomp
+
+
+The output motif in the .nef file will not have the reverse complement to keep the data compact, but it is considered in the evaluation of solutions.
+
+=======================================================================================
+3) Select different multi-objective parameters
+=======================================================================================
+Description:
+	The multi-objective optimization depends on a few parameters, mainly:
+	    1) The fitness objectives
+	       F - Fisher's exact test
+	       D - Discrimination
+	       S - Support
+	    E.g: argument: --fitness=DF, for a Discrimination/Fisher's exact test fitness function
+	    
+	    2) The multiobjective optimizer (NSGA-II, SPEA2, or the improved NSGA-IIr. NSGA-II and IIr are dubbed NSGA2 and FORTIN in this software.)
+	    E.g: argument: --moo=NSGA2
+	    3) Evolutionary parameters
+	       a) Population size
+	       E.g --popsize=3000
+	       b) Crossover and mutation rates
+	       E.g. --cxpb=0.6 --mutpb=0.4
+
+	Our default settings are well suited for different types of datasets, but it is possible that certain dataset benefit from modified parameters.
+
+For example:
+$ python motifgp.py -p CHEN/Smad1.pos.fasta -n 10 --fitness=DS --moo=FORTIN --popsize=3000 --cxpb=0.6 --mutpb=0.4
+
+=======================================================================================
+4) Provide a background dataset
+=======================================================================================
+Description:
+	The -b argument allows usage of a background dataset instead of the dinucleotide shuffle.
+
+For example:
+
+python motifgp.py -p CHEN/CTCF.pos.fasta -b CHEN/Smad1.pos.fasta -n 1 
+Options:
+{'backpad': False, 'verbose': True, 'ngen': 1, 'bg_algo': 'dinuclShuffle', 'erase': None, 'inspector': False, 'no_seed': True, 'checkpoint_path': None, 'mutpb': 0.3, 'revcomp': False, 'cxpb': 0.7, 'random_seed': 42, 'matcher': 'grep', 'training_path': 'CHEN/CTCF.pos.fasta', 'hardmask': False, 'moo': 'FORTIN', 'background_path': 'CHEN/Smad1.pos.fasta', 'short': 0, 'grammar': 'iupac', 'clutch': False, 'popsize': 1000, 'timelimit': None, 'tag': 'default', 'output_path': './OUT/', 'hamming': False, 'fitness': 'DF'}
+[['Discrimination', <function fit_discrimination at 0x7fea287b5e60>, 1.0], ['Fisher', <function fit_fisher at 0x7fea287b5ed8>, -1.0]]
+[<function fit_discrimination at 0x7fea287b5e60>, <function fit_fisher at 0x7fea287b5ed8>]
+[1.0, -1.0]
+Creating pset for Regex
+HARDMASK: False
+Lengths: 39609 1126
+Writing background to runtime_tmp/CTCF.pos.fasta_background_929da026-8273-4361-b523-5cfa2690f527
+Writing positive to runtime_tmp/CTCF.pos.fasta_foreground_929da026-8273-4361-b523-5cfa2690f527
+Loading grep matcher
+Loaded.
+Initial pop size: 1000
+Input sequences# 39609
+Control sequences# 1126
+WARNING: Uneven number of input and control sequences.
+
+
+The output shows a warning because of the uneven sequence count between input and control.
+This has an effect on fitness objectives like Support, where fewer input sequences can make
+the score easier to maximize.
+
+======================================================================================
+5) Evaluating predictions with TOMTOM
+======================================================================================
+
+To determine if predictions are correct, we recommend using the TOMTOM motif comparison tool, which is installed through the MEME suite (http://meme-suite.org/doc/download.html?man_type=web). The databases required by TOMTOM are also on the same page (http://meme-suite.org/meme-software/Databases/motifs/motif_databases.12.12.tgz)
+
+The script nef_to_neft.py  appends the TOMTOM output appended to each row of an output .nef file from MotifGP.
+
+The first argument is the .nef file
+The second argument is the path to the tomtom executable
+The third argument is the a comma separated list of motif databases compatible with TOMTOM:
+
+Example:
+python nef_to_neft.py OUT/default/FORTIN/42.nef "/home/y/meme/bin/tomtom" ~/meme/db/motif_databases/MOUSE/uniprobe_mouse.meme,~/meme/db/motif_databases/HUMAN/HOCOMOCOv10_HUMAN_mono_meme_format.meme
+
+The output will be written at the same location as the input file, but with a .neft extension.
