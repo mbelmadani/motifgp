@@ -20,18 +20,6 @@ import numpy
 import time
 
 DEFAULT_CHECKPOINTFREQ = 9000000
-CLUTCH_INCREASE=2
-
-def gearUp(mu):
-    if mu >= 500:
-        print "Gear up BLOCKED"
-        return mu
-    print "Gear UP by", CLUTCH_INCREASE
-    return mu+CLUTCH_INCREASE
-
-def gearDown(mu):
-    print "Gear DOWN by", CLUTCH_INCREASE
-    return mu+-1*CLUTCH_INCREASE
 
 def eaFortin(population, 
              toolbox, 
@@ -50,7 +38,6 @@ def eaFortin(population,
              CPOUT=None,
              pset=None,
              timelimit=None,
-             CLUTCH=True             
              ):
     """
     EA based of the sample in the fortin2013 repository
@@ -125,13 +112,6 @@ def eaFortin(population,
         record = stats.compile(population)
         logbook.record(gen=gen, evals=len(invalid_ind), memoize=toolbox.memoizecount(), maxdepth=numpy.max([x.height for x in population]), **record ) 
 
-        if CLUTCH:
-            if mu > 10:
-                if toolbox.memoizecount() - new_individuals < math.ceil(0.5*mu):
-                    mu = gearDown(mu)                
-            if toolbox.memoizecount() - new_individuals > math.floor(0.5*mu):
-                mu = gearUp(mu)
-                
         new_individuals = toolbox.memoizecount()
         
 

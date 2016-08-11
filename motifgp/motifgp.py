@@ -145,10 +145,6 @@ if __name__ == "__main__":
 #                    dest="hypervolume", default=False,
 #                    help="[Experimental] Output a trace of the hypervolume.")
 
-    parser.add_option("--clutch", action="store_true",
-                      dest="clutch", default=False,
-                      help="[Experimental] Autosize the population.")
-
     parser.add_option("--hamming", action="store_true",
                     dest="hamming", default=False,
                     help="[Experimental] Generates statistics on the hamming distance from a template regex and hof candidates.")

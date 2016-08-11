@@ -135,7 +135,6 @@ class Engine(STGPFitness):
                                               checkpoint=self.options.checkpoint_path,
                                               verbose=True,
                                               timelimit=self.options.timelimit,
-                                              CLUTCH=self.options.clutch
                                               ) 
             print "Memoized",self.memoize_count,"calls."
         elif self.options.moo in ["SPEA2", "NSGA2"]:
