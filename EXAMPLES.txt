@@ -98,7 +98,7 @@ Description:
 	       S - Support
 	    E.g: argument: --fitness=DF, for a Discrimination/Fisher's exact test fitness function
 	    
-	    2) The multiobjective optimizer (NSGA-II, SPEA2, or the improved NSGA-IIr. NSGA-II and IIr are dubbed NSGA2 and FORTIN in this software.)
+	    2) The multiobjective optimizer (NSGA-II, SPEA2, or the improved NSGA-IIr. NSGA-II and IIr are dubbed NSGA2 and NSGAR in this software.)
 	    E.g: argument: --moo=NSGA2
 	    3) Evolutionary parameters
 	       a) Population size
@@ -109,7 +109,7 @@ Description:
 	Our default settings are well suited for different types of datasets, but it is possible that certain dataset benefit from modified parameters.
 
 For example:
-$ python motifgp.py -p CHEN/Smad1.pos.fasta -n 10 --fitness=DS --moo=FORTIN --popsize=3000 --cxpb=0.6 --mutpb=0.4
+$ python motifgp.py -p CHEN/Smad1.pos.fasta -n 10 --fitness=DS --moo=NSGAR --popsize=3000 --cxpb=0.6 --mutpb=0.4
 
 =======================================================================================
 4) Provide a background dataset
@@ -139,7 +139,7 @@ WARNING: Uneven number of input and control sequences.
 
 
 The output shows a warning because of the uneven sequence count between input and control.
-This has an effect on fitness objectives like Support, where fewer input sequences can make
+This has an effect on fitness objectives like Discrimination, where fewer input sequences can make
 the score easier to maximize.
 
 ======================================================================================
@@ -158,3 +158,81 @@ Example:
 python nef_to_neft.py OUT/default/FORTIN/42.nef "/home/y/meme/bin/tomtom" ~/meme/db/motif_databases/MOUSE/uniprobe_mouse.meme,~/meme/db/motif_databases/HUMAN/HOCOMOCOv10_HUMAN_mono_meme_format.meme
 
 The output will be written at the same location as the input file, but with a .neft extension.
+
+
+======================================================================================
+5) Creating/Editing objectives
+======================================================================================
+
+MotifGP already has a few objective functions implemented in objectives.py, but it is also customizable. Create or edit functions in objective.py, and configure them in config/objectives.map. 
+
+As an example, we can create a variant of the Support objective (Total positive sequences matched/Total positive sequences) where the function is changed to (Total negative sequences matched/Total negative sequences).
+
+	class NegativeSupport(Objective): # Create a class for objective, and extend Objective (from objective.py)
+	# In the initialation, you need to assign:
+    	# tag: String - The objective name
+    	# w: float - The weight for minimization or maximization
+	 # f: function - The objective to compute
+    	def __init__(self):
+        	self.tag = "NegativeSupport" # Name the objective
+        	self.w = -1.0 # Set positive weight for maximization objectives, and -1.0 for a minimization objective.
+
+        	def fit_negative_support(p, P, n, N): # Create a fitness function that accepts p, P, n and N, even if they're unused.
+            	# p : total positive matches
+            	# P : total positive sequences
+            	# n : total negative matches
+            	# N : total negative sequences
+            	# By convention, you can name unused arguments with _, __ and ___. e.g def fitness(p, _, P, __):
+            	return n/(1.0*N)
+
+        self.f = fit_negative_support # Designate the fitness
+
+Note that we set w (the weight) to -1.0. The idea is that we should want to minimize the number of negative matches, so a negative weigth seems more appropriate.
+Then, simply update the config/objectives.map file to assign a key as the parameter for MotifGP.
+	F=Fisher
+	I=ScipyFisher
+	D=Discrimination
+	S=Support
+	O=OddsRatio
+	R=ScipyOddsRatio
+	Q=FalseDiscove
+	# My objectives
+	N=NegativeSupport
+	
+And you should be able to use your objective with the key N. For example a Fisher+NegativeSupport:
+
+	python motifgp.py -f FN -p CHEN/Smad1.pos.fasta
+
+...
+[<function fit_negative_support at 0x7f3d80bcdc80>, <function fit_fisher at 0x7f3d80bcdcf8>]
+[1.0, -1.0]
+...
+   	     	       	        	                     Fisher                     	                NegativeSupport                 
+   	     	       	        	------------------------------------------------	------------------------------------------------
+gen	evals	memoize	maxdepth	avg      	max	min     	std     	avg     	max     	min	std     
+0  	0    	0      	4       	-0.700303	1  	-11.8035	0.794532	0.722226	0.847247	0  	0.244139
+0  	795  	720    	8       	-1.08205 	-0.606384	-20.2213	1.50511 	0.797282	0.847247	0.0159858	0.135432
+1  	762  	1079   	8       	-1.26253 	-0.647503	-20.2213	2.18183 	0.804621	0.847247	0.0595027	0.109026
+2  	781  	1386   	9       	-1.87303 	-0.647503	-20.2213	3.75498 	0.797226	0.847247	0.218472 	0.120874
+3  	798  	1682   	11      	-2.7606  	-0.647503	-20.2213	5.03724 	0.774728	0.847247	0.305506 	0.149269
+4  	802  	1981   	11      	-3.08767 	-0.647503	-21.802 	5.12837 	0.766437	0.847247	0.371226 	0.149922
+5  	778  	2254   	11      	-3.42811 	-0.647503	-21.802 	5.06522 	0.756964	0.847247	0.371226 	0.129628
+6  	785  	2549   	10      	-3.51545 	-0.647503	-21.802 	5.46597 	0.761878	0.847247	0.371226 	0.130661
+7  	779  	2799   	12      	-4.73884 	-0.647503	-24.4557	5.87413 	0.731313	0.847247	0.298401 	0.136101
+8  	770  	2998   	12      	-5.54918 	-0.647503	-24.4557	6.5863  	0.710751	0.847247	0.298401 	0.150391
+9  	787  	3194   	10      	-5.62263 	-0.647503	-24.4557	6.54813 	0.707751	0.847247	0.298401 	0.149553
+10 	783  	3378   	12      	-5.90551 	-0.647503	-24.4557	6.93355 	0.705282	0.847247	0.298401 	0.156731
+
+
+Also, your new objective should show up in the --help menu.
+
+	 -f FITNESS, --fitness=FITNESS
+                        Objective fitness function. Available objectives: D=Di
+                        scrimination,F=Fisher,I=ScipyFisher,O=OddsRatio,N=Nega
+                        tiveSupport,Q=FalseDiscoveryRate,S=Support,R=ScipyOdds
+                        Ratio. Each single character in the string represents
+                        an objective. Objectives are mapped by the
+                        configuration file at config/objectives. Default is
+                        'DF' for [Discrimination,Fisher] (2-objectives).
+
+
