@@ -86,7 +86,6 @@ Options:
   --backpad             Pads background sequences with consecutive nucleotides
                         (ie. AAAAAAAA,CCCCCCCC,GGGGGGGG,TTTTTTTT) of length 8
                         every set of 4 sequences.
-  --clutch              [Experimental] Autosize the population.
   --hamming             [Experimental] Generates statistics on the hamming
                         distance from a template regex and hof candidates.
   --seeded-population   [Experimental] Use population seeds
