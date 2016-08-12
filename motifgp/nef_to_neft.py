@@ -1,8 +1,11 @@
 """
 Post-processing script.
 
-Takes in a Network Expression Pareto Front (.nef) file
+Takes in a Network Expression Pareto Front (.nef) file, appends the tomtom information and saves the output (.neft) file
+
 Creates a .MEME format file for each motifs.
+Calls Tomtom for each .MEME file.
+Append the Tomtom output of the best match to each row of the .nef file.
 """
 
 import fileinput
