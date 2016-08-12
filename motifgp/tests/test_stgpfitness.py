@@ -18,13 +18,14 @@ class Object(object):
     
 def skipTestScipy(func):
     try:
-        import scipy        
+        import scipy
+        return func
     except:
         import sys
         msg = "Skipping Scipy dependent test: "+ func.__name__        
         print(msg, file=sys.stderr)
         return
-    func()
+
 
 @skipTestScipy
 def test_matchers():
