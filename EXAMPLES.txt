@@ -161,7 +161,7 @@ The output will be written at the same location as the input file, but with a .n
 
 
 ======================================================================================
-5) Creating/Editing objectives
+6) Creating/Editing objectives
 ======================================================================================
 
 MotifGP already has a few objective functions implemented in objectives.py, but it is also customizable. Create or edit functions in objective.py, and configure them in config/objectives.map. 
