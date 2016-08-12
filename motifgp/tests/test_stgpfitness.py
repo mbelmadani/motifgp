@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from nose.tools import assert_equals
 from nose.tools import assert_almost_equals
 from nose.tools import assert_is_none
@@ -13,6 +15,19 @@ from utils import Utils
 class Object(object):
     pass
 
+    
+def skipTestScipy(func):
+    try:
+        import scipy        
+    except:
+        #self.skipTest('skipped test due to skip_tests_flag')
+        import sys
+        msg = "Skipping Scipy dependent test: "+ func.__name__        
+        print(msg, file=sys.stderr)
+        return
+    func()
+
+@skipTestScipy
 def test_matchers():
     objectives = "FDSI"
     stgp = STGPFitness(objectives)
@@ -39,11 +54,11 @@ def test_matchers():
     assert_equals(python_score, [0.5, 1.0, 1.0, 0.5] )
     assert_equals(grep_score, [0.5, 1.0, 1.0, 0.5] )
     assert_equals(python_score, grep_score)
-    
 
+@skipTestScipy
 def test_objectives():
-
-    # TEST 1: Odds ratio should work like the scipy version
+    # TEST 1: Odds ratio and Fisher's exact test should work like the scipy version
+    
     objectives = "FIOR"
     stgp = STGPFitness(objectives)
 
