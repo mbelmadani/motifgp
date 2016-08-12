@@ -20,7 +20,6 @@ def skipTestScipy(func):
     try:
         import scipy        
     except:
-        #self.skipTest('skipped test due to skip_tests_flag')
         import sys
         msg = "Skipping Scipy dependent test: "+ func.__name__        
         print(msg, file=sys.stderr)
@@ -82,12 +81,7 @@ def test_objectives():
     stgp.options = options
 
     for regex in regexs:
-        python_score = stgp.memoize_or_python_match(regex) #, DEBUGGING=True)
-        #print python_score
-        #print( float(sprint_logx(python_score[0], 10, "%6.10fe%-5.0f")),
-        #       python_score[1])
-
-
+        python_score = stgp.memoize_or_python_match(regex)
         assert_almost_equals(float(sprint_logx(python_score[0], 10, "%6.10fe%-5.0f")),
                                  python_score[1])
         assert_almost_equals(python_score[2], python_score[3])
