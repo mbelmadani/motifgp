@@ -6,6 +6,12 @@ MotifGP is a de novo motif discovery tool for discriminatory network expression 
 Original author: Manuel Belmadani
 	mbelm006@uottawa.ca
 
+The project is documented by the following publications.
+
+Manuel Belmadani and Marcel Turcotte. (In press) MotifGP: Using multi-objective evolutionary computing for mining network expressions in DNA sequences. In IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB 2016), Chiang Mai, Thailand, October, 5-7, 2016. Preprint available upon request.
+
+Manuel Belmadani. MotifGP: DNA motif discovery using multiobjective evolution. Master of computer science, University of Ottawa, School of Electrical Engineering and Computer Science, 2016. Available from University of Ottawa Research under: http://www.ruor.uottawa.ca/handle/10393/34213
+
 Acknowledgements:
 MotifGP is using source code from these tools:
 -hypergeometric.py from the MEME Suite (License and copyright in source file).
