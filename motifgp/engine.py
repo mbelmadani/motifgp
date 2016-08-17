@@ -6,16 +6,6 @@ import random
 import deap
 import uuid
 import os
-"""
-    from deap import algorithms
-    from deap import base
-    from deap import creator
-    from deap import gp
-    from deap import tools
-"""
-
-#import Levenshtein
-#from scoop import futures
 
 from utils import Utils
 
@@ -33,8 +23,16 @@ from grammars import AlphaRangeGrammar
 from grammars import IUPACRangeGrammar
 from grammars import NetworkExpressionGrammar
 from grammars import PSSMGrammar
-#from hypergeometric import getLogFETPvalue
-#import multiprocessing
+
+PATHOS = False
+try:
+    from pathos.multiprocessing import ProcessingPool as Pool
+    from pathos.multiprocessing import cpu_count
+    PATHOS = True
+except:
+    # Cannot use pathos for multiprocessing
+    PATHOS = False
+    pass
 
 class Engine(STGPFitness):
 
@@ -379,7 +377,16 @@ class Engine(STGPFitness):
             self.toolbox = toolbox
         else:
             self.toolbox = deap.base.Toolbox()
-            #self.toolbox.register("map", futures.map)
+	    #TODO: Check if multiprocessing is requested and add an options.multiprocessing
+            global PATHOS
+            if PATHOS:
+		n_cpu = cpu_count() # options.multiprocessing could also specify number of processors.
+		print "Using multiprocessing with", n_cpu, "cpus."
+                pool = Pool(n_cpu)
+                self.toolbox.register("map", pool.map)
+            else:
+                print "Failed to load pathos; using a single processor."
+
             """ Basic toolbox functions"""
             self.toolbox.register("expr", deap.gp.genHalfAndHalf, pset=self.pset, type_=self.pset.ret, min_=1, max_=4)
             self.toolbox.register("individual", deap.tools.initIterate, deap.creator.Individual, self.toolbox.expr)
