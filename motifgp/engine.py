@@ -377,15 +377,21 @@ class Engine(STGPFitness):
             self.toolbox = toolbox
         else:
             self.toolbox = deap.base.Toolbox()
-	    #TODO: Check if multiprocessing is requested and add an options.multiprocessing
-            global PATHOS
-            if PATHOS:
-		n_cpu = cpu_count() # options.multiprocessing could also specify number of processors.
-		print "Using multiprocessing with", n_cpu, "cpus."
-                pool = Pool(n_cpu)
-                self.toolbox.register("map", pool.map)
-            else:
-                print "Failed to load pathos; using a single processor."
+	    if self.options.ncpu and ( self.options.ncpu == "auto" or int(self.options.ncpu) > 1):
+                """
+                Check if PATHOS was loaded
+                """
+                global PATHOS
+                if PATHOS:
+                    if self.options.ncpu == "auto":
+		        n_cpu = cpu_count()
+                    else:
+                        n_cpu = int(self.options.ncpu)
+		    print "Using pathos.multiprocessing with", n_cpu, "cpus."
+                    pool = Pool(n_cpu)
+                    self.toolbox.register("map", pool.map)
+                else:
+                    print "WARNING: Failed to load pathos; using a single processor."
 
             """ Basic toolbox functions"""
             self.toolbox.register("expr", deap.gp.genHalfAndHalf, pset=self.pset, type_=self.pset.ret, min_=1, max_=4)

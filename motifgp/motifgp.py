@@ -129,14 +129,18 @@ if __name__ == "__main__":
     parser.add_option("-e", "--erase", dest="erase",
                       help="Input .nef(t) file to delete from the dataset prior to execution. Used for sequential coverage.", default=None)
 
-
-    parser.add_option("--bg-algo", dest="bg_algo",
-                      help="Shuffling algorithm for background. Default is 'dinuclShuffle', if no background dataset it provided. Currently, dinuclShuffle is the only implemented method.", default="dinuclShuffle")
-
-
     parser.add_option("--backpad", action="store_true",
                       dest="backpad", default=False,
                       help="Pads background sequences with consecutive nucleotides (ie. "+ ",".join([x*postprocessing.PADLENGTH for x in postprocessing.ALPHABET]) +") of length "+ str(postprocessing.PADLENGTH) +" every set of "+str(len(postprocessing.ALPHABET))+" sequences.")
+
+    parser.add_option("--bg-algo", dest="bg_algo",
+                      help="Shuffling algorithm for background. Default is 'dinuclShuffle', if no background dataset it provided. Currently, dinuclShuffle is the only implemented method.", default="dinuclShuffle")
+    
+    parser.add_option("--ncpu", dest="ncpu",
+                      help="Number of CPUs to use when mapping evaluation of solutions. Use an integer, \"auto\" to automatically dertmine the maximum number. Default is no parallelism.",
+                      default=None)
+
+
 
     # Currently not used
 
