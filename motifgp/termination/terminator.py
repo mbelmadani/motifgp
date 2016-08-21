@@ -15,7 +15,7 @@ class MOEATerminationDetection(object):
     """
 
     """
-    This class is a generic implementation of the Entropy-Based TErmination Criterion for Multiobjective Evolutionary Algorithms by Saxena et al.
+    This class is a generic implementation of the Entropy-Based Termination Criterion for Multiobjective Evolutionary Algorithms by Saxena et al.
 
     Publication: 
     Saxena, D. K., Sinha, A., Duro, J. A. & Zhang, Q. Entropy-Based Termination Criterion for Multiobjective Evolutionary Algorithms. IEEE Trans. Evol. Comput. 20, 485-498 (2016).
@@ -24,12 +24,20 @@ class MOEATerminationDetection(object):
     Once termination is satisfied, self.terminate is set to True, returned by done().
     """
     
-    def __init__(self):
+    def __init__(self, n_s=20, n_p=3, n_b=10):
+        """
+        Initialize termination detection algorithms
+        Input:
+        n_s: Number of generations to compare between
+        n_p: Decimal places to keep after rounding mean M and std S during dissimilarity
+        n_b: Number of bins for the multidimensional histogram
+
+        """
         self.DEBUG = False
         
-        self.n_s = 20 # Number of generations to compare between
-        self.n_p = 3 # Decimal places to keep after rounding mean M and std S during dissimilarity
-        self.n_b = 5 # Number of bins for the multidimensional histogram
+        self.n_s = n_s # Number of generations to compare between
+        self.n_p = n_p # Decimal places to keep after rounding mean M and std S during dissimilarity
+        self.n_b = n_b # Number of bins for the multidimensional histogram
 
         self.c_1 = False # Termination criteria: mean dissimilarity has stabilized
         self.c_2 = False # Termination criteria: standard deviation has stabilized
@@ -42,6 +50,11 @@ class MOEATerminationDetection(object):
     def done(self):
         """ Returns true when termination has been reached """
         return self.terminate
+
+    def status(self, t):
+        """ Print vectors D, M and S for a generation t"""
+        #if self.DEBUG:
+        print "t:", t, "| D:",self.D[t], "M:",self.M[t], "S:",self.S[t]
 
     def update(self, P, Q, t):
         """
@@ -78,8 +91,8 @@ class MOEATerminationDetection(object):
             S_t = M_t
         else:
             # Determine M_t and S_t
-            M_t = round((1/float(t)) * sum([D_i for D_i in self.D]), self.n_p)
-            S_t = round((1/float(t)) * sum([ (D_i - M_t)**2 for D_i in self.D ]), self.n_p)
+            M_t = round((1/float(t)) * sum([D_i for D_i in self.D[-self.n_s:] ]), self.n_p)
+            S_t = round((1/float(t)) * sum([ (D_i - M_t)**2 for D_i in self.D[-self.n_s:] ]), self.n_p)
         self.M.append(M_t)
         self.S.append(S_t)
 
@@ -98,7 +111,8 @@ class MOEATerminationDetection(object):
         
         if all( [self.c_1, self.c_2] ):
             self.terminate = True
-            print "Terminate!"
+            if self.DEBUG:
+                print "Termination reached."
         else:
             self.c_1 = False
             self.c_2 = False
@@ -208,9 +222,25 @@ if __name__ == "__main__":
     Example
     """
     import random
+    import sys
 
-    terminator = MOEATerminationDetection()
-
+    if len(sys.argv) == 1:        
+        n_s=10
+        n_p=3
+        n_b=10
+    elif sys.argv[1] == "-h":
+        print "Usage:"
+        print "python",sys.argv[0], "n_s", "n_p", "n_b"
+        print "n_s : Number of generations to compare between."
+        print "n_p : Decimal places to keep after rounding mean M and std S during dissimilarity"
+        print "n_b : Number of bins for the multidimensional histogram"
+        exit(0)
+    else:
+        n_s,n_p,n_b = [int(x) for x in sys.argv[1:]]
+        
+    terminator = MOEATerminationDetection( n_s=n_s, n_p=n_p, n_b=n_b )
+    #terminator.DEBUG = True
+    
     a_generation = [    [0.9, 0.9],
                         [0.2, 0.5],
                         [0.2, 0.1]
@@ -222,32 +252,32 @@ if __name__ == "__main__":
     ]
 
     g = []
-    for i in range(25):
+    for i in range(50):
         # Simulated 3 M=2 fitness tuples.
         g.append( [[random.random(),random.random()],
                    [random.random(),random.random()],
                    [random.random(),random.random()]]  ) 
 
     # Add many of the same population
-    generations = g + [ b_generation]*1000 
+    generations = g + [ b_generation ]*100
 
-    #terminator.DEBUG = True
-    t = 0
-    
+    t = 0    
     print "Input generations:"
     print "\n".join([str(x) for x in generations])
     while not terminator.done() and t != len(generations):
-        print "t", t, "/", len(generations)
+        terminator.update(generations[t-1], generations[t], t)
+        terminator.status(t)
+
         """
         print "D", terminator.D
         print "M", terminator.M
         print "S", terminator.S    
         """
         
-        terminator.update(generations[t-1], generations[t], t)
         if terminator.done():
-            print "terminator is done!"
+            print "Done. Exiting"
+            exit(0)
             break
         t+=1
-
+print "Automatic termination was not reached."
 
