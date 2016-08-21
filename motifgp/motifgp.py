@@ -42,7 +42,7 @@ def check_parameter_constraints(options):
     """
     # Hamming and pos.file
     if not options.training_path:
-        print "Positive/training input sequences required with -p <INPUT>"
+        print "Input sequences are required. Use -p <FILE> to specify the path to a FASTA format file of sequences."
         sys.exit(-1)
     if float(options.cxpb + options.mutpb) != 1.0:
         print "EXITING: Crossover and mutation probabilities should add up to 1.0"
