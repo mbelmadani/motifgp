@@ -24,7 +24,7 @@ class MOEATerminationDetection(object):
     Once termination is satisfied, self.terminate is set to True, returned by done().
     """
     
-    def __init__(self, n_s=20, n_p=3, n_b=10):
+    def __init__(self, n_s=20, n_p=3, n_b=10, DEBUG=False):
         """
         Initialize termination detection algorithms
         Input:
@@ -33,7 +33,7 @@ class MOEATerminationDetection(object):
         n_b: Number of bins for the multidimensional histogram
 
         """
-        self.DEBUG = False
+        self.DEBUG = DEBUG
         
         self.n_s = n_s # Number of generations to compare between
         self.n_p = n_p # Decimal places to keep after rounding mean M and std S during dissimilarity
