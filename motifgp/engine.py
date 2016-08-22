@@ -133,6 +133,7 @@ class Engine(STGPFitness):
                                               checkpoint=self.options.checkpoint_path,
                                               verbose=True,
                                               timelimit=self.options.timelimit,
+                                              termination=self.options.termination
                                               ) 
             print "Memoized",self.memoize_count,"calls."
         elif self.options.moo in ["SPEA2", "NSGA2"]:
@@ -151,9 +152,8 @@ class Engine(STGPFitness):
                                                                CPOUT=self.OUTPUT_PATH,
                                                                checkpoint=self.options.checkpoint_path,
                                                                verbose=True,
-                                                               timelimit=self.options.timelimit
-                                                               
-                                                               )
+                                                               timelimit=self.options.timelimit,
+                                                               termination=self.options.termination)
             print "Memoized",self.memoize_count,"calls."
         elif self.options.moo == "ESCMA":
             offspring, log = evoalgo.cmaES(self.population,

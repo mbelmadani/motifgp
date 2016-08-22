@@ -19,6 +19,10 @@ import random
 import numpy
 import time
 
+from termination.automoea import MOEATerminationDetection
+from termination.timer import TimeTerminator
+from termination.generation import GenerationTerminator
+
 DEFAULT_CHECKPOINTFREQ = 9000000
 
 def eaFortin(population, 
@@ -38,25 +42,25 @@ def eaFortin(population,
              CPOUT=None,
              pset=None,
              timelimit=None,
+             termination=None
              ):
     """
     EA based of the sample in the fortin2013 repository
     """
-    timestart = time.time()
-    time.clock()
-    elapsed = 0
+    if timelimit:
+        terminator = TimeTerminator(limit=timelimit)
+    else:
+        terminator = GenerationTerminator(limit=ngen)
     
-    new_individuals = 0
     if checkpoint:
-        if verbose:
-            print "Resuming from generation", start_gen
-            start_gen += 1
-            print logbook.stream
+        # Removed feature
+        print "Resuming from generation", start_gen    
+        print logbook.stream
+        
     else:
         logbook = tools.Logbook()
-        #logbook.header = ['gen', 'evals', 'hypervolume', 'memoize'] + (stats.fields if stats else [])
         logbook.header = ['gen', 'evals', 'memoize', "maxdepth"] + (stats.fields if stats else [])
-        
+
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
@@ -69,55 +73,48 @@ def eaFortin(population,
 
         if halloffame is not None:
             halloffame.update(population)
-
         #hypervolume_score =  benchmarks.tools.hypervolume(halloffame)
 
         record = stats.compile(population) if stats is not None else {}
-        #logbook.record(gen=start_gen, hypervolume=hypervolume_score, evals=len(invalid_ind), memoize=0, **record)
         logbook.record(gen=start_gen, evals=len(invalid_ind), memoize=0, maxdepth=numpy.max([x.height for x in population]), **record)
 
     if verbose:
         print logbook.stream
-       
-    for gen in xrange(start_gen, ngen+1):
+
+    if termination == "auto":
+        #TODO: Place somewhere better
+        terminator = MOEATerminationDetection()
+        
+    gen = start_gen    
+    while not terminator.done():
         # Vary the population
         offspring = toolbox.preselect(population, len(population))
         offspring = [toolbox.clone(ind) for ind in offspring]        
-        """
-        for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
-            if random.random() <= cxpb:
-                ind1, ind2 = toolbox.mate(ind1, ind2)
-            if random.random() > mutpb:
-                ind1 = toolbox.mutate(ind1)
-            if random.random() > mutpb:
-                ind2 =toolbox.mutate(ind2)
-            del ind1.fitness.values, ind2.fitness.values
-        """
         offspring = varAnd(offspring, toolbox, cxpb, mutpb)
         
-
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-    
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
-        
         # Select the next generation population
         population = toolbox.select(population + offspring, mu)
-        
-        halloffame.update(population)        
 
+        gen += 1
+        # Update termination conditions
+        if termination == "auto":
+            P = [list(y) for y in [x.fitness.values for x in halloffame[:]]]
+            halloffame.update(population)
+            Q = [list(y) for y in [x.fitness.values for x in halloffame[:]]]
+            terminator.update(P,Q, gen-1) # Update diversity from last generation
+        else:
+            halloffame.update(population)
+            terminator.update(gen=gen)
+        
         record = stats.compile(population)
         logbook.record(gen=gen, evals=len(invalid_ind), memoize=toolbox.memoizecount(), maxdepth=numpy.max([x.height for x in population]), **record ) 
 
-        new_individuals = toolbox.memoizecount()
-        
-
-
-        if verbose:
-            print(logbook.stream)
+        if verbose: print(logbook.stream)
 
         if CPOUT:
             continue # Checkpoints disabled
@@ -132,20 +129,7 @@ def eaFortin(population,
                                    numpystate=numpy.random.get_state(),
                                    pset=None                                   
                                    )
-        if timelimit:
-            elapsed = time.time() - timestart
-            if elapsed >= timelimit:
-                print "Times up", elapsed, timelimit
-                store_checkpoint(CPOUT+"/"+str(gen)+"_"+str(elapsed)+".checkpoint",
-                                 population, 
-                                 gen, 
-                                 halloffame, 
-                                 logbook,
-                                 toolbox,
-                                 rndstate=random.getstate(),
-                                 numpystate=numpy.random.get_state(), 
-                                 pset=None)                
-                break
+
     if CPOUT:
         this_checkpoint = CPOUT+"/"+str(ngen)+".checkpoint"
         store_checkpoint(this_checkpoint, 
@@ -177,7 +161,8 @@ def checkpoint_eaMuPlusLambda(population,
                               checkpoint=None,
                               CPOUT=None,
                               verbose=__debug__,
-                              timelimit=None):
+                              timelimit=None,
+                              termination=None):
     """This is the :math:`(\mu + \lambda)` evolutionary algorithm.
     
     :param population: A list of individuals.
@@ -225,35 +210,32 @@ def checkpoint_eaMuPlusLambda(population,
     variation.
     """
 
-    
-    timestart = time.time()
-    time.clock()
-    elapsed = 0
-
-    if checkpoint:
-        if verbose:
-            print "Resuming from generation", start_gen
-            start_gen += 1
-            print logbook.stream
+    if timelimit:
+        terminator = TimeTerminator(limit=timelimit)
     else:
-        if logbook == None:
-            logbook = tools.Logbook()
-            #logbook.header = ['gen', 'evals', 'hypervolume'] + (stats.fields if stats else [])
-            logbook.header = ['gen', 'evals'] + (stats.fields if stats else [])
+        terminator = GenerationTerminator(limit=ngen)
+        
+    if checkpoint:
+        # Removed feature
+        print "Resuming from generation", start_gen
+        print logbook.stream
+    else:
+        
+        logbook = tools.Logbook()
+        logbook.header = ['gen', 'evals', 'memoize', "maxdepth"] + (stats.fields if stats else [])
 
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        #fitnesses = toolbox.map(toolbox.evaluate, invalid_ind, [invalid_ind for i in range(len(invalid_ind))])
+        
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
 
         if halloffame is not None:
             halloffame.update(population)
 
-        record = stats.compile(population) if stats is not None else {}
-        
-        logbook.record(gen=start_gen, evals=len(invalid_ind), **record)
+        record = stats.compile(population) if stats is not None else {}        
+        logbook.record(gen=start_gen, evals=len(invalid_ind), memoize=0, maxdepth=numpy.max([x.height for x in population]), **record)
         
     if verbose:
         print logbook.stream
@@ -261,32 +243,43 @@ def checkpoint_eaMuPlusLambda(population,
     if len(population) == 1:
         population.append(population[0])
 
+    
+    if termination == "auto":
+        #TODO: Place somewhere better
+        terminator = MOEATerminationDetection()
+
     # Begin the generational process
-    for gen in xrange(start_gen, ngen+1):
-        # Vary the population
-        
+    gen = start_gen
+    while not terminator.done():
+        # Vary the population        
         offspring = varOr(population, toolbox, lambda_, cxpb, mutpb)
         
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        #fitnesses = toolbox.map(toolbox.evaluate, invalid_ind, [invalid_ind for i in range(len(invalid_ind))]) #toolbox.map(toolbox.evaluate, invalid_ind, population)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
-        
-        # Update the hall of fame with the generated individuals
-        if halloffame is not None:
-            halloffame.update(offspring)
             
+        # Update the hall of fame with the generated individuals
+        # Update termination conditions
+        gen+=1
+        if termination == "auto":
+            P = [list(y) for y in [x.fitness.values for x in halloffame[:]]]
+            halloffame.update(offspring)
+            Q = [list(y) for y in [x.fitness.values for x in halloffame[:]]]
+            terminator.update(P,Q, gen-1)
+        else:
+            halloffame.update(offspring)
+            terminator.update(gen=gen)
+        
         # Select the next generation population
         population[:] = toolbox.select(population + offspring, mu)
-
-        # Update the statistics with the new population
-        #hypervolume_score =  benchmarks.tools.hypervolume(halloffame) 
+            
         record = stats.compile(population) if stats is not None else {}
-        #logbook.record(gen=gen, evals=len(invalid_ind), hypervolume=hypervolume_score, memoize=toolbox.memoizecount(), **record)
-        logbook.record(gen=gen, evals=len(invalid_ind), memoize=toolbox.memoizecount(), **record)
-        if verbose:  print logbook.stream
+
+        logbook.record(gen=gen, evals=len(invalid_ind), memoize=toolbox.memoizecount(), maxdepth=numpy.max([x.height for x in population]), **record ) 
+
+        if verbose: print logbook.stream
 
         # Store checkpoint if gen is valid
         if CPOUT:
@@ -303,21 +296,6 @@ def checkpoint_eaMuPlusLambda(population,
                              pset=None
             )
 
-        if timelimit:
-            elapsed = time.time() - timestart
-            if elapsed >= timelimit:
-                print "Times up", elapsed, timelimit                
-                store_checkpoint(CPOUT+"/"+str(gen)+"_"+str(elapsed)+".checkpoint",
-                                 population, 
-                                 gen, 
-                                 halloffame, 
-                                 logbook,
-                                 toolbox, 
-                                 rndstate=random.getstate(),
-                                 numpystate=numpy.random.get_state(),
-                                 pset=None)
-
-                break
                 
     if CPOUT :
         this_checkpoint = CPOUT+"/"+str(ngen)+".checkpoint"
@@ -383,9 +361,10 @@ def store_checkpoint(path,
               numpystate=numpystate
               )
 
-    print "Writing gen", generation, "at path", path
     if True:
         return
+    
+    print "Writing gen", generation, "at path", path
     with open(path, 'w') as f:
         json.dump(cp, f)
         pickle.dump(cp, f)

@@ -140,6 +140,10 @@ if __name__ == "__main__":
                       help="Number of CPUs to use when mapping evaluation of solutions. Use an integer, \"auto\" to automatically dertmine the maximum number. Default is no parallelism.",
                       default=None)
 
+    parser.add_option("--termination", dest="termination",
+                      help="Use automatic termination algorithm",
+                      default=None)
+
 
 
     # Currently not used
@@ -257,8 +261,7 @@ if __name__ == "__main__":
     # END MAIN EXECUTION
 
     if options.verbose:
-        print engine.EXPERIMENT, "in", elapsed,"time"
-
+        print "Overall runtime: ", elapsed, "time"
         of = None
         if (options.inspector):
             of = Inspector() # Write to STDOUT
