@@ -204,7 +204,7 @@ if __name__ == "__main__":
         options.ngen=10
     elif options.timelimit is not None and\
          options.ngen is None:
-        options.ngen=9999999 # TODO: Edit engine to support infinite generations
+        options.ngen=1 # TODO: Edit engine to support infinite generations
 
 
     NGEN=options.ngen

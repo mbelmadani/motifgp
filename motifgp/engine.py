@@ -13,6 +13,7 @@ import evoalgo
 import nsgafortin
 import reseed
 import primitives
+from moead import MOEAD
 #import MOODS
 
 #import matrixevaluator
@@ -155,6 +156,25 @@ class Engine(STGPFitness):
                                                                timelimit=self.options.timelimit,
                                                                termination=self.options.termination)
             print "Memoized",self.memoize_count,"calls."
+        elif self.options.moo == "MOEAD":
+            MU = self.POP_SIZE
+            LAMBDA = 2 #TODO: Make this an input parameter
+            
+            ea = MOEAD(self.population,
+                       self.toolbox,
+                       MU,
+                       self.CXPB,
+                       self.MUTPB,
+                       self.logbook,
+                       ngen=self.NGEN,
+                       timelimit=self.options.timelimit,
+                       stats=self.mstats,
+                       halloffame=self.hof,
+                       termination=self.options.termination,
+                       nr=LAMBDA)
+            offspring, log = ea.execute()                              
+            
+            
         elif self.options.moo == "ESCMA":
             offspring, log = evoalgo.cmaES(self.population,
                                            self.toolbox,
@@ -463,6 +483,8 @@ class Engine(STGPFitness):
                 self.toolbox.register("select", deap.tools.selSPEA2)
             elif self.options.moo == "NSGA2":
                 self.toolbox.register("select", deap.tools.selNSGA2)
+            elif self.options.moo == "MOEAD":
+                pass
             else:
                 if self.options.moo == "ESCMA":
                     from deap import cma

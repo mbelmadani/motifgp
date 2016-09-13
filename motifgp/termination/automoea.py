@@ -83,8 +83,9 @@ class MOEATerminationDetection(Terminator):
             elif q == 0:
                 self.D[t] = self.D[t] - p*log(p)
         for i in xrange(len(C_q)):
-            if q == 0: continue
             q = float(Q_cq[i])/len(Q)
+            if q == 0:
+                continue
             self.D[t] = self.D[t] - (q * log(q))
 
         if t <= 1:
@@ -94,6 +95,8 @@ class MOEATerminationDetection(Terminator):
             # Determine M_t and S_t
             M_t = round((1/float(t)) * sum([D_i for D_i in self.D[-self.n_s:] ]), self.n_p)
             S_t = round((1/float(t)) * sum([ (D_i - M_t)**2 for D_i in self.D[-self.n_s:] ]), self.n_p)
+            #M_t = round((1/float(t)) * sum([D_i for D_i in self.D ]), self.n_p)
+            #S_t = round((1/float(t)) * sum([ (D_i - M_t)**2 for D_i in self.D ]), self.n_p)
         self.M.append(M_t)
         self.S.append(S_t)
 
