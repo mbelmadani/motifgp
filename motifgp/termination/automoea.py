@@ -40,8 +40,8 @@ class MOEATerminationDetection(Terminator):
         
         self.DEBUG = DEBUG
         
-        self.n_s = n_s # Number of generations to compare between
-        self.n_p = n_p # Decimal places to keep after rounding mean M and std S during dissimilarity
+        self.n_s = n_s # Number of generations to keep when comparing their means and std for dissimilarity
+        self.n_p = n_p # Decimal places to keep after rounding mean M and std S during dissimilarity comparison        
         self.n_b = n_b # Number of bins for the multidimensional histogram
 
         self.c_1 = False # Termination criteria: mean dissimilarity has stabilized
