@@ -88,6 +88,7 @@ ENV/
 # Rope project settings
 .ropeproject
 
+<<<<<<< HEAD
 # MotifGP specific
 motifgp3/
 runtime_tmp/
@@ -95,3 +96,9 @@ CHEN/
 OUT/
 # symlink
 CHEN
+=======
+# MotifGP
+CHEN*/
+OUT/
+runtime_tmp/
+>>>>>>> hpc
