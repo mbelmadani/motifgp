@@ -105,24 +105,24 @@ def primitive_str_charclass(one,two,three,four):
     args = [one,two,three,four]
     charclass = ""
 
+    if len(charclass)==0:
+        args = [1,1,1,1]
+
     for x in ALPHABET:
         if x in args:
             charclass += x
-    if len(charclass)==0:
-        return ""
     return "["+charclass+"]"
             
 def primitive_charclass(A,C,T,G):
     charclass = ""
+    if not any([A,C,G,T]):
+        charclass = "ACGT"
     if A: charclass += "A"
     if C: charclass += "C"
     if G: charclass += "G"
-    if T: charclass += "T"
+    if T: charclass += "T"        
 
-    if len(charclass) <= 1:
-        return charclass
-    else:
-        return "["+charclass+"]"
+    return "["+charclass+"]"
 
     
 def primitive_position(A,C,G,T):

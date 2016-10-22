@@ -87,3 +87,11 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# MotifGP specific
+motifgp3/
+runtime_tmp/
+CHEN/
+OUT/
+# symlink
+CHEN
