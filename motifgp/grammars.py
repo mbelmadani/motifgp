@@ -5,6 +5,7 @@ import operator
 import deap
 import random
 
+from primitives import *
 
 ALPHABET=["A", "C", "G", "T"]
 
@@ -47,6 +48,65 @@ class IUPACGrammar(AlphaGrammar):
         self.pset.addTerminal(True, bool)
         self.pset.addTerminal(False, bool)
 
+class ConditionalGrammar(Grammar):
+    """
+    A grammar for regular expressions with Lookbehind assertions
+    """
+    def __init__(self):
+        super(ConditionalGrammar, self).__init__()        
+        
+        self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], ConditionalExpression, "IN")
+
+        self.pset.addPrimitive(operator.and_, [bool, bool], bool)
+        self.pset.addPrimitive(operator.or_, [bool, bool], bool)
+        self.pset.addPrimitive(operator.not_, [bool], bool)
+
+        self.pset.addPrimitive(operator.add, [Nucleotide,Nucleotide], Nucleotide)
+                
+        self.pset.addTerminal(True, bool)
+        self.pset.addTerminal(False, bool)
+        
+        # Alphabet terminals
+        for c in self.ALPHABET:            
+            C = typed_conditional_anchor(c)
+            self.pset.addTerminal(C, Anchor)
+            self.pset.addTerminal(Nucleotide(c), Nucleotide)
+
+        CC = CharacterClass("[ACGT]")
+        CONDITIONAL_POSITION = typed_conditional_position(CC, CC)
+        CONDITIONAL_PORTION =  CONDITIONAL_POSITION
+        
+        CPos = ConditionalPortion(CONDITIONAL_POSITION)
+        CPor = ConditionalPosition(CPos)
+
+        self.pset.addTerminal(CC, CharacterClass)
+        self.pset.addTerminal(CPos, ConditionalPosition)
+        self.pset.addTerminal(CPor, ConditionalPortion)
+
+        self.pset.addPrimitive(typed_conditional_expression,
+                               [Anchor, ConditionalPortion],
+                               ConditionalExpression)
+        
+        self.pset.addPrimitive(typed_conditional_portion,
+                               [ConditionalPosition, ConditionalPosition],
+                               ConditionalPortion)
+
+        self.pset.addPrimitive(typed_conditional_position,
+                               [CharacterClass, CharacterClass],
+                               ConditionalPosition)
+        
+        self.pset.addPrimitive(typed_conditional_charclass,
+                               [bool, bool, bool, bool],
+                               CharacterClass)
+
+        self.pset.addPrimitive(typed_conditional_anchor,
+                               [Nucleotide],
+                               Anchor)
+
+        #self.pset.addPrimitive(typed_conditional_nucleotide,
+        #                       [str],
+        #                       Nucleotide)
+        
 class NetworkExpressionGrammar(AlphaGrammar):
     def __init__(self):
         # Adds nucleotides and concatenantions
@@ -86,78 +146,3 @@ class PSSMGrammar(Grammar):
         #pset.addTerminal(False, bool)
         #pset.addTerminal(0, int)
         #pset.addTerminal(1, int)
-
-## Defining Primitives ##
-def primitive_addrange(a, b):
-    MAX = 10
-    MIN = 8
-    c = a + b
-    if c < MIN:
-        c = MIN
-    elif c > MAX:
-        c = MAX
-    return c
-
-def primitive_not(boolean):
-    return not boolean
-
-def primitive_str_charclass(one,two,three,four):
-    args = [one,two,three,four]
-    charclass = ""
-
-    if len(charclass)==0:
-        args = [1,1,1,1]
-
-    for x in ALPHABET:
-        if x in args:
-            charclass += x
-    return "["+charclass+"]"
-            
-def primitive_charclass(A,C,T,G):
-    charclass = ""
-    if not any([A,C,G,T]):
-        charclass = "ACGT"
-    if A: charclass += "A"
-    if C: charclass += "C"
-    if G: charclass += "G"
-    if T: charclass += "T"        
-
-    return "["+charclass+"]"
-
-    
-def primitive_position(A,C,G,T):
-    """
-    Creates a position object for a PSSM
-    Assuming A,C,T,G for PSSM order
-    """
-    position = [[A,C,T,G]]
-    return position
-
-"""
-    def primitive_get_seeds():
-
-    #input: None
-    #description: Access the list of of gathered seeds, picks one randomly
-    #returns: str
-
-    global epheremal_seeds
-    idx = random.randint(0, len( epheremal_seeds)-1)
-    return epheremal_seeds[idx]
-
-"""
-
-
-def primitive_range(pre, a, b, post):
-    """
-    input: ints, range start and range length, respectively
-    """
-    start,stop = str(int(a)), str(int(a+b))
-    str_range = pre+ \
-                ".{"+ \
-                start+ \
-                ","+ \
-                stop+ \
-                "}"+ \
-                post 
-    #Regex token should be something like ".{1, 5}"
-    return str_range
