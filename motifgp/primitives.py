@@ -15,6 +15,54 @@ class PrimitivePSSM():
         else:
             self.positions.append(x)
 
+class Anchor(str): pass
+
+class ConditionalExpression(str): pass
+
+class ConditionalIUPACExpression(str): pass
+
+class ConditionalPortion(str): pass
+class ConditionalPosition(str): pass
+
+class CharacterClass(str): pass
+class Nucleotide(str): pass
+
+def typed_conditional_iupac_expression(E):
+    """ returns a string as a type Nucleotide """
+    #print "CREATING REGEX ", E
+    c = E.count("@")
+    corrected_str = E
+    for i in xrange(1, c+1):
+        corrected_str = corrected_str.replace("@", str(i), 1)
+    #print "REGEX CREATED ", corrected_str
+    #raw_input()
+    return ConditionalIUPACExpression(corrected_str)
+
+def typed_conditional_charclass(A,C,G,T):
+    """ primitive_charclass functions that returns a type CharacterClass """
+    return CharacterClass(primitive_charclass(A,C,G,T))
+    
+def typed_conditional_nucleotide(N):
+    """ returns a string as a type Nucleotide """    
+    return Nucleotide(N)
+
+def typed_conditional_expression(anchor, rest):
+    expression = anchor + rest
+    c = expression.count("@")
+
+    for i in xrange(1, c+1):
+        expression = expression.replace("@", str(i), 1)
+    return expression
+
+def typed_conditional_portion(C1, C2):
+    return ConditionalPortion(C1 + C2)
+
+def typed_conditional_position(CC1, CC2):
+    return ConditionalPosition("((?(@)"+CC1+"|"+CC2+"))")
+
+def typed_conditional_anchor(N):
+    return Anchor("("+N+")?")
+
 
 ## Defining Primitives ##
 def primitive_addrange(a, b):
@@ -35,7 +83,7 @@ def primitive_str_charclass(one,two,three,four):
     charclass = ""
 
     if len(charclass)==0:
-        args = [1,1,1,1]
+       args = ['A','C','G','T']		
 
     for x in ALPHABET:
         if x in args:
@@ -75,7 +123,6 @@ def primitive_position(A,C,G,T):
 
 """
 
-
 def primitive_range(pre, a, b, post):
     """
     input: ints, range start and range length, respectively
@@ -91,37 +138,12 @@ def primitive_range(pre, a, b, post):
     #Regex token should be something like ".{1, 5}"
     return str_range
 
-class Anchor(str): pass
+def primitive_conditional_immediate(condition, consequence):
+    pre = "("+condition+")?"
+    consequence = "(?(@)"+consequence+")"
+    return pre + consequence
 
-class ConditionalExpression(str): pass
-
-class ConditionalPortion(str): pass
-class ConditionalPosition(str): pass
-
-class CharacterClass(str): pass
-class Nucleotide(str): pass
-
-def typed_conditional_charclass(A,C,G,T):
-    """ primitive_charclass functions that returns a type CharacterClass """
-    return CharacterClass(primitive_charclass(A,C,G,T))
-    
-def typed_conditional_nucleotide(N):
-    """ returns a string as a type Nucleotide """    
-    return Nucleotide(N)
-
-def typed_conditional_expression(anchor, rest):
-    expression = anchor + rest
-    c = expression.count("@")
-
-    for i in xrange(1, c+1):
-        expression = expression.replace("@", str(i), 1)
-    return expression
-
-def typed_conditional_portion(C1, C2):
-    return ConditionalPortion(C1 + C2)
-
-def typed_conditional_position(CC1, CC2):
-    return ConditionalPosition("((?(@)"+CC1+"|"+CC2+"))")
-
-def typed_conditional_anchor(N):
-    return Anchor("("+N+")?")
+def primitive_conditional(condition, string, consequence):
+    pre = "("+condition+")?"
+    consequence = "(?(@)"+consequence+")"
+    return pre + string + consequence

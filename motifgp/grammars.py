@@ -48,6 +48,24 @@ class IUPACGrammar(AlphaGrammar):
         self.pset.addTerminal(True, bool)
         self.pset.addTerminal(False, bool)
 
+class ConditionalIUPACGrammar(Grammar):
+    def __init__(self):
+        super(ConditionalIUPACGrammar, self).__init__()
+        self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], ConditionalIUPACExpression, "IN")
+        self.pset.addPrimitive(operator.add, [str,str], str)        
+
+        # Alphabet of CHARs
+        for c in self.ALPHABET:
+            self.pset.addTerminal(c, str)
+            # Alphabet of Booleans
+            
+        #self.pset.addPrimitive(typed_conditional_iupac_expression, [ConditionalIUPACExpression], ConditionalIUPACExpression)
+        self.pset.addPrimitive(typed_conditional_iupac_expression, [str], ConditionalIUPACExpression)
+        self.pset.addPrimitive(primitive_conditional_immediate, [str, str], str) # Conditional, immediate.
+        self.pset.addPrimitive(primitive_conditional, [str, str, str], str) # Conditional, with gap.
+        self.pset.addTerminal("[ACGT]", ConditionalIUPACExpression)
+        
+        
 class ConditionalGrammar(Grammar):
     """
     A grammar for regular expressions with Lookbehind assertions
@@ -138,7 +156,7 @@ class PSSMGrammar(Grammar):
         self.pset.addPrimitive(primitive_position, [int, int, int, int], list)
         self.pset.addEphemeralConstant("randWeight", lambda: random.randint(0, 10), int)
         #pset.addPrimitive(operator.add, [list,list], list)
-        #pset.addPrimitive(operator.add, [primitives.PrimitivePSSM, list], primitives.PrimitivePSSM)
+        #pset.addPrimitive(operator.add, [primitives.PrimitivePSSM, list], primitives.PrimitivePSxoSM)
         #pset.addPrimitive(operator.add, [list, primitives.PrimitivePSSM], primitives.PrimitivePSSM)
         #pset.addTerminal([[0,0,0,0]], list)
         self.pset.addTerminal([], list)
@@ -147,77 +165,4 @@ class PSSMGrammar(Grammar):
         #pset.addTerminal(0, int)
         #pset.addTerminal(1, int)
 
-## Defining Primitives ##
-def primitive_addrange(a, b):
-    MAX = 10
-    MIN = 8
-    c = a + b
-    if c < MIN:
-        c = MIN
-    elif c > MAX:
-        c = MAX
-    return c
 
-def primitive_not(boolean):
-    return not boolean
-
-def primitive_str_charclass(one,two,three,four):
-    args = [one,two,three,four]
-    charclass = ""
-
-    if len(charclass)==0:
-        args = ['A','C','G','T']
-
-    for x in ALPHABET:
-        if x in args:
-            charclass += x
-    return "["+charclass+"]"
-            
-def primitive_charclass(A,C,T,G):
-    charclass = ""
-    if not any([A,C,G,T]):
-        charclass = "ACGT"
-    else:
-        if A: charclass += "A"
-        if C: charclass += "C"
-        if G: charclass += "G"
-        if T: charclass += "T"        
-
-    return "["+charclass+"]"
-
-    
-def primitive_position(A,C,G,T):
-    """
-    Creates a position object for a PSSM
-    Assuming A,C,T,G for PSSM order
-    """
-    position = [[A,C,T,G]]
-    return position
-
-"""
-    def primitive_get_seeds():
-
-    #input: None
-    #description: Access the list of of gathered seeds, picks one randomly
-    #returns: str
-
-    global epheremal_seeds
-    idx = random.randint(0, len( epheremal_seeds)-1)
-    return epheremal_seeds[idx]
-
-"""
-
-def primitive_range(pre, a, b, post):
-    """
-    input: ints, range start and range length, respectively
-    """
-    start,stop = str(int(a)), str(int(a+b))
-    str_range = pre+ \
-                ".{"+ \
-                start+ \
-                ","+ \
-                stop+ \
-                "}"+ \
-                post 
-    #Regex token should be something like ".{1, 5}"
-    return str_range

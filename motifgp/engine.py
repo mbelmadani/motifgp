@@ -25,6 +25,7 @@ from grammars import IUPACRangeGrammar
 from grammars import NetworkExpressionGrammar
 from grammars import PSSMGrammar
 from grammars import ConditionalGrammar
+from grammars import ConditionalIUPACGrammar
 
 PATHOS = False
 try:
@@ -209,6 +210,8 @@ class Engine(STGPFitness):
                 grammar = PSSMGrammar()
             elif options.grammar in ["conditional"]:
                 grammar = ConditionalGrammar()
+            elif options.grammar in ["iupac_conditional"]:
+                grammar = ConditionalIUPACGrammar()
                 
             self.pset = grammar.get_pset()
 
