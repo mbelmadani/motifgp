@@ -1,5 +1,5 @@
 ===============
-= MotifGP 0.1 =
+= MotifGP 0.2 =
 ===============
 MotifGP is a de novo motif discovery tool for discriminatory network expression identification in ChIP-seq datasets.
 
@@ -35,9 +35,9 @@ Options:
                         [Optional] Fasta file to use for background (control)
                         sequence data. If not provided, a the generated
                         control sequences will be written to runtime_tmp/
-  -m MOO, --moo=MOO     Multi-objective optimization [SPEA2, NSGA2, NSGAR].
-                        NSGAR is the NSGA-II_R (NSGA-II Revised) algorithm
-                        improvement of NSGA2.
+  -m MOO, --moo=MOO     Multi-objective optimization [SPEA2, NSGA2, NSGAR,
+                        MOEAD]. NSGAR is the NSGA-II_R (NSGA-II Revised)
+                        algorithm improvement of NSGA2.
   -f FITNESS, --fitness=FITNESS
                         Objective fitness function. Available objectives: D=Di
                         scrimination,F=Fisher,I=ScipyFisher,O=OddsRatio,Q=Fals
@@ -85,13 +85,20 @@ Options:
   -e ERASE, --erase=ERASE
                         Input .nef(t) file to delete from the dataset prior to
                         execution. Used for sequential coverage.
+  --backpad             Pads background sequences with consecutive nucleotides
+                        (ie. AAAAAAAA,CCCCCCCC,GGGGGGGG,TTTTTTTT) of length 8
+                        every set of 4 sequences.
   --bg-algo=BG_ALGO     Shuffling algorithm for background. Default is
                         'dinuclShuffle', if no background dataset it provided.
                         Currently, dinuclShuffle is the only implemented
                         method.
-  --backpad             Pads background sequences with consecutive nucleotides
-                        (ie. AAAAAAAA,CCCCCCCC,GGGGGGGG,TTTTTTTT) of length 8
-                        every set of 4 sequences.
+  --ncpu=NCPU           Number of CPUs to use when mapping evaluation of
+                        solutions. Use an integer, "auto" to automatically
+                        dertmine the maximum number. Default is no
+                        parallelism.
+  --termination=TERMINATION
+                        Use automatic termination algorithm. User 'auto' to
+                        used the automatic termination algorithm for MOEAs.
   --hamming             [Experimental] Generates statistics on the hamming
                         distance from a template regex and hof candidates.
   --seeded-population   [Experimental] Use population seeds
@@ -99,4 +106,6 @@ Options:
                         [Temporarily disabled] Load a checkpoint at path.
   -q, --quiet           [Unimplemented] don't print status messages to stdout
 
+
 Also consider looking at EXAMPLES.txt for basic examples of MotifGP usage.
+

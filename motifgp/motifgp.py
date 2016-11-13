@@ -61,7 +61,7 @@ if __name__ == "__main__":
                       help="[Optional] Fasta file to use for background (control) sequence data. If not provided, a the generated control sequences will be written to runtime_tmp/", default=None)
 
     parser.add_option("-m", "--moo", dest="moo",
-                      help="Multi-objective optimization [SPEA2, NSGA2, NSGAR]. NSGAR is the NSGA-II_R (NSGA-II Revised) algorithm improvement of NSGA2.", default="NSGAR")
+                      help="Multi-objective optimization [SPEA2, NSGA2, NSGAR, MOEAD]. NSGAR is the NSGA-II_R (NSGA-II Revised) algorithm improvement of NSGA2.", default="NSGAR")
 
     parser.add_option("-f", "--fitness", dest="fitness", type="str",
                       help="Objective fitness function. Available objectives: "+objectives_help+". Each single character in the string represents an objective. Objectives are mapped by the configuration file at config/objectives. Default is 'DF' for [Discrimination,Fisher] (2-objectives).", default="DF")
@@ -141,7 +141,7 @@ if __name__ == "__main__":
                       default=None)
 
     parser.add_option("--termination", dest="termination",
-                      help="Use automatic termination algorithm",
+                      help="Use automatic termination algorithm. User 'auto' to used the automatic termination algorithm for MOEAs.",
                       default=None)
 
 
@@ -270,7 +270,8 @@ if __name__ == "__main__":
         # Write Network Expression Front
         if OUTPUT_PATH:
             statcsv.write_nef(OUTPUT_PATH, engine)
-
+            statcsv.write_log(OUTPUT_PATH, log)
+            
 
     #if options.hypervolume:
     #   #statcsv.write_hypervolume(OUTPUT_PATH,log)

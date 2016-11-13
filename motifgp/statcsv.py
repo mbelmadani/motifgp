@@ -1,4 +1,5 @@
 import csv
+import sys
 import utils
 
 def write_hypervolume(path, log):
@@ -30,3 +31,12 @@ def write_nef(path, engine=None):
             count += 1
             writer.writerow(candidate)
     print "NEF File written at", nef_path
+
+def write_log(path, log):
+    stats_path = path + ".stats"
+    stdout = sys.stdout
+    sys.stdout=open(stats_path,"w")
+    print log
+    sys.stdout = stdout
+    print "Statistics written at", stats_path
+    
