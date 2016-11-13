@@ -88,7 +88,12 @@ class Utils():
         Creates a regex objects out of a list of regex tokens
         """
         expr = self.list_to_regex_string(a_list)
-        return re.compile(expr)
+        try:
+            return re.compile(expr)
+        except Exception as e:
+            print "Bad regular expression:", expr
+            raise e
+            
 
     def list_to_regex_string(self, a_list):
         """

@@ -1,3 +1,15 @@
+=== version 0.2.0 ===
+Added MOEA/D multiobjective algorithm (from https://github.com/mbelmadani/moead-py)
+Added general purpose "terminator" for timed and generation based (or other) termination conditions
+Added MOEA Automatic Termination algorithm and integrated in terminator (from https://github.com/mbelmadani/moea-automatic-termination)
+Update Charclass behavior; when no nucleotide is provided, return '[ACGT]' instead of ''. This avoids bloat of dummy (empty) CharacterClasses and uses [ACGT] tokens as placeholders (less negative impact other than temporarily reducing the specificity of matches.)
+Run population statistics are now written by the .nef file as a .stats files.
+
+Minor updates:
+Made scipy optional
+Moved primitive functions from grammar.py to primitive.py
+Added an "experimental" conditional position grammar
+
 === version 0.1.2 ===
 Objective mapping is now configurable via config/objectives.map
 Re-labeled the NSGA-II_R multiobjective algorithm to NSGAR

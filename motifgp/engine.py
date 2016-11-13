@@ -24,6 +24,8 @@ from grammars import AlphaRangeGrammar
 from grammars import IUPACRangeGrammar
 from grammars import NetworkExpressionGrammar
 from grammars import PSSMGrammar
+from grammars import ConditionalGrammar
+from grammars import ConditionalIUPACGrammar
 
 PATHOS = False
 try:
@@ -206,11 +208,17 @@ class Engine(STGPFitness):
                 grammar = NetworkExpressionGrammar()
             elif options.grammar in ["pssm"]:
                 grammar = PSSMGrammar()
+            elif options.grammar in ["conditional"]:
+                grammar = ConditionalGrammar()
+            elif options.grammar in ["iupac_conditional"]:
+                grammar = ConditionalIUPACGrammar()
+                
             self.pset = grammar.get_pset()
 
         except Exception as e:
-            print e.message
+            print e.message            
             print "Failed to create grammar. Using", self.pset
+            raw_input()
                 
         return self.pset
 

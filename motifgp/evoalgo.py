@@ -99,6 +99,9 @@ def eaFortin(population,
             ind.fitness.values = fit
         # Select the next generation population
         population = toolbox.select(population + offspring, mu)
+        #print "\n".join([str(toolbox.compile(p)) + "|" + str(p) for p in population])
+        #raw_input()
+        
 
         gen += 1
         # Update termination conditions
