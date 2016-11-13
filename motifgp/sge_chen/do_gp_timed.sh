@@ -13,15 +13,17 @@ outdir="./CHEN_OUT_"$TYPE"_"$VERSION"_"$FITNESS"_"$POPSIZE"_"$MATCHER"/"
 mkdir -p $outdir
 
 STARTGEN=0
-ENDGEN=1000
-MAXSEED=9
+ENDGEN=100000
+MAXSEED=109
+
 TIMEFILE="sge_chen/chen_timelimits"
 
 FASTAS=$(ls $indir/*.fasta)
 
-for MOO in "MOEAD" "NSGAR" "SPEA2" ; do
+#for MOO in "NSGAR" "SPEA2" "MOEAD ; do
+for MOO in "NSGAR" "SPEA2" ; do
     for FASTA in $FASTAS; do
-	i=0 # SEED
+	i=100 # SEED
 	target=$(basename $FASTA | sed s/.pos.fasta//g )
 	timelimit=$(grep $target $TIMEFILE | cut -f2 -d" ")
 	ARGS=" --timelimit=$timelimit --matcher=$MATCHER --popsize=$POPSIZE "
