@@ -156,7 +156,7 @@ class PSSMGrammar(Grammar):
         self.pset.addPrimitive(primitive_position, [int, int, int, int], list)
         self.pset.addEphemeralConstant("randWeight", lambda: random.randint(0, 10), int)
         #pset.addPrimitive(operator.add, [list,list], list)
-        #pset.addPrimitive(operator.add, [primitives.PrimitivePSSM, list], primitives.PrimitivePSxoSM)
+        #pset.addPrimitive(operator.add, [primitives.PrimitivePSSM, list], primitives.PrimitivePSSM)
         #pset.addPrimitive(operator.add, [list, primitives.PrimitivePSSM], primitives.PrimitivePSSM)
         #pset.addTerminal([[0,0,0,0]], list)
         self.pset.addTerminal([], list)
