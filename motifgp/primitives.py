@@ -18,15 +18,47 @@ class PrimitivePSSM():
 class Anchor(str): pass
 
 class ConditionalExpression(str): pass
-
 class ConditionalIUPACExpression(str): pass
-
 class ConditionalPortion(str): pass
 class ConditionalPosition(str): pass
-
+    
 class CharacterClass(str): pass
 class Nucleotide(str): pass
 
+class SingleSpacerIUPACExpression(str):pass
+class rangeInt(int):pass
+class indexInt(int):pass
+
+class Spacer(object):
+
+    def __init__(self, index, minimum, maximum, optional=False):
+        self.index = index
+        self.minimum = minimum
+        self.maximum = maximum
+        self.optional = optional
+
+    def __repr__(self):
+        #return "<Spacer(): index:%s, minimum:%s, maximum:%s>" % (self.index, self.minimum, self.maximum)
+        return "typed_spacer(%s,%s,%s)" % (self.index, self.minimum, self.maximum)
+    
+    def __str__(self):
+        return self.toString()
+
+    def toString(self):
+        return "{"+str(self.minimum)+","+str(self.maximum)+"}"
+
+    def insertInto(self, string):
+        print "STRING",string
+        print "SELF.TOSTRING", self.toString()
+        optional = "?" if self.optional else ""
+        space = str(self.toString())+optional
+        safeIndex = self.index % len(string)
+        expression = string[:safeIndex]+space+string[safeIndex:]
+        print "EXPRESSION",expression
+        return expression
+    
+    
+## Conditionals
 def typed_conditional_iupac_expression(E):
     """ returns a string as a type Nucleotide """
     #print "CREATING REGEX ", E
@@ -63,6 +95,16 @@ def typed_conditional_position(CC1, CC2):
 def typed_conditional_anchor(N):
     return Anchor("("+N+")?")
 
+## Spacers
+def typed_singlespacer_iupac_expression(string, spacer):
+    print spacer,string
+    return SingleSpacerIUPACExpression(spacer.insertInto(string))
+
+def typed_spacer(index, minimum, maximum):
+    first = min([minimum, maximum])
+    second = max([minimum, maximum])
+    return Spacer(index, first, second)
+    
 
 ## Defining Primitives ##
 def primitive_addrange(a, b):

@@ -26,6 +26,7 @@ from grammars import NetworkExpressionGrammar
 from grammars import PSSMGrammar
 from grammars import ConditionalGrammar
 from grammars import ConditionalIUPACGrammar
+from grammars import SingleSpacerIUPACGrammar
 
 PATHOS = False
 try:
@@ -194,7 +195,7 @@ class Engine(STGPFitness):
         """ 
         Calls a grammar depending on the parameter
         """
-        try: # FIXME: Limitation; Grammar can only be created once...
+        try: # FIXME: Limitation; Grammar can only be created once...    
             grammar = None
             if options.grammar in ["alpha"]:
                 grammar = AlphaGrammar()
@@ -212,6 +213,8 @@ class Engine(STGPFitness):
                 grammar = ConditionalGrammar()
             elif options.grammar in ["iupac_conditional"]:
                 grammar = ConditionalIUPACGrammar()
+            elif options.grammar in ["iupac_singlespacer"]:
+                grammar = SingleSpacerIUPACGrammar()
                 
             self.pset = grammar.get_pset()
 

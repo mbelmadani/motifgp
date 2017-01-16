@@ -23,6 +23,7 @@ class Grammar(object):
             deap.creator.create("Individual", deap.gp.PrimitiveTree, fitness=deap.creator.FitnessMax, pset=self.pset)
 
         return self.pset
+        
 
 class AlphaGrammar(Grammar):
     def __init__(self):
@@ -47,7 +48,45 @@ class IUPACGrammar(AlphaGrammar):
 
         self.pset.addTerminal(True, bool)
         self.pset.addTerminal(False, bool)
+            
+class SingleSpacerIUPACGrammar(Grammar):
+    def __init__(self):
+        super(SingleSpacerIUPACGrammar, self).__init__()
+        self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], SingleSpacerIUPACExpression, "IN")
+        self.pset.addPrimitive(operator.add, [str,str], str)        
+        
+        # Alphabet of CHARs
+        for c in self.ALPHABET:
+            self.pset.addTerminal(c, str)
+            # Alphabet of Booleans
 
+        # IUPAC Tokens
+        self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
+        self.pset.addPrimitive(operator.and_, [bool, bool], bool)
+        self.pset.addPrimitive(operator.or_, [bool, bool], bool)
+        self.pset.addPrimitive(operator.not_, [bool], bool)
+        self.pset.addTerminal(True, bool)
+        self.pset.addTerminal(False, bool)
+
+        # Spacer Tokens
+        ##Hardcoded into spacer
+        self.pset.addTerminal(False, bool)
+        
+        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 7, 10, 1, 30 # TODO: Problem specific; Parameterize this for future use.
+        self.pset.addPrimitive(typed_singlespacer_iupac_expression, [str, Spacer], SingleSpacerIUPACExpression)
+        self.pset.addEphemeralConstant("rangeInt", lambda: random.randint(RANGE_MIN, RANGE_MAX), rangeInt)
+        self.pset.addEphemeralConstant("indexInt", lambda: random.randint(INDEX_MIN, INDEX_MAX), indexInt)
+        self.pset.addPrimitive(typed_spacer, [indexInt, rangeInt, rangeInt], Spacer)
+ 
+        self.pset.addTerminal(Spacer(0,0,0), Spacer)
+
+        ## TODO:FIXME: Can cause bloat
+        def nothing(number):
+            return number
+        self.pset.addPrimitive(nothing, [rangeInt], rangeInt)
+        self.pset.addPrimitive(nothing, [indexInt], indexInt)
+        ##                              
+    
 class ConditionalIUPACGrammar(Grammar):
     def __init__(self):
         super(ConditionalIUPACGrammar, self).__init__()
