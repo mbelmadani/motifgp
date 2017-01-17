@@ -25,6 +25,7 @@ class ConditionalPosition(str): pass
 class CharacterClass(str): pass
 class Nucleotide(str): pass
 
+class NetworkExpression(str):pass
 class SingleSpacerIUPACExpression(str):pass
 class rangeInt(int):pass
 class indexInt(int):pass
@@ -45,16 +46,17 @@ class Spacer(object):
         return self.toString()
 
     def toString(self):
-        return "{"+str(self.minimum)+","+str(self.maximum)+"}"
+        return ".{"+str(self.minimum)+","+str(self.maximum)+"}"
 
     def insertInto(self, string):
+        if len(string) <= 1 : return string
         print "STRING",string
         print "SELF.TOSTRING", self.toString()
         optional = "?" if self.optional else ""
         space = str(self.toString())+optional
-        safeIndex = self.index % len(string)
+        safeIndex = (self.index % (len(string)) ) + 1
         expression = string[:safeIndex]+space+string[safeIndex:]
-        print "EXPRESSION",expression
+        print "EXPRESSION",expression, self.index , "out of", safeIndex, self.minimum, self.maximum
         return expression
     
     
@@ -97,8 +99,11 @@ def typed_conditional_anchor(N):
 
 ## Spacers
 def typed_singlespacer_iupac_expression(string, spacer):
-    print spacer,string
+    print "spacer:",spacer, " into ", string
     return SingleSpacerIUPACExpression(spacer.insertInto(string))
+
+def typed_network_expression(string):
+    return NetworkExpression(string)
 
 def typed_spacer(index, minimum, maximum):
     first = min([minimum, maximum])

@@ -61,7 +61,7 @@ class SingleSpacerIUPACGrammar(Grammar):
             # Alphabet of Booleans
 
         # IUPAC Tokens
-        self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
+        #self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
         self.pset.addPrimitive(operator.and_, [bool, bool], bool)
         self.pset.addPrimitive(operator.or_, [bool, bool], bool)
         self.pset.addPrimitive(operator.not_, [bool], bool)
@@ -69,15 +69,15 @@ class SingleSpacerIUPACGrammar(Grammar):
         self.pset.addTerminal(False, bool)
 
         # Spacer Tokens
-        ##Hardcoded into spacer
-        self.pset.addTerminal(False, bool)
-        
+        ##Hardcoded into spacer        
         RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 7, 10, 1, 30 # TODO: Problem specific; Parameterize this for future use.
-        self.pset.addPrimitive(typed_singlespacer_iupac_expression, [str, Spacer], SingleSpacerIUPACExpression)
+        self.pset.addPrimitive(typed_singlespacer_iupac_expression, [NetworkExpression, Spacer], SingleSpacerIUPACExpression)
         self.pset.addEphemeralConstant("rangeInt", lambda: random.randint(RANGE_MIN, RANGE_MAX), rangeInt)
         self.pset.addEphemeralConstant("indexInt", lambda: random.randint(INDEX_MIN, INDEX_MAX), indexInt)
         self.pset.addPrimitive(typed_spacer, [indexInt, rangeInt, rangeInt], Spacer)
- 
+        self.pset.addPrimitive(typed_network_expression, [str], NetworkExpression)
+
+        self.pset.addTerminal(NetworkExpression(""), NetworkExpression)
         self.pset.addTerminal(Spacer(0,0,0), Spacer)
 
         ## TODO:FIXME: Can cause bloat

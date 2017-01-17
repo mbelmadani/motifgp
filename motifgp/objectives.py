@@ -121,7 +121,15 @@ class Fisher(Objective):
         def fit_fisher(p, P, n, N):
             #pvalue_threshold = 0.5
             pvalue_threshold = False # Modification to allow p-value above 0.5
-            return getLogFETPvalue(p, P, n, N, pvalue_threshold)
+            if p < 1:
+                return 1
+            try:
+                return getLogFETPvalue(p, P, n, N, pvalue_threshold)
+            except Exception as e:
+                print p,P,n,N
+                print e
+                raise e
+            
         
         self.f = fit_fisher
 
