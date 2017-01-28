@@ -123,12 +123,16 @@ class Fisher(Objective):
             pvalue_threshold = False # Modification to allow p-value above 0.5
             if p < 1:
                 return 1
-            try:
+            try:                
                 return getLogFETPvalue(p, P, n, N, pvalue_threshold)
             except Exception as e:
-                print p,P,n,N
-                print e
-                raise e
+                try:
+                    # Weird bug with : python hypergeometric.py 5705 5706 2238 2238
+                    return getLogFETPvalue(p+1, P, n, N, pvalue_threshold)
+                except Exception as e:
+                    print p,P,n,N
+                    print e
+                    raise e
             
         
         self.f = fit_fisher

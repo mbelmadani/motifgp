@@ -196,6 +196,27 @@ class STGPFitness(object):
 
         return tuple(fitnesses)
 
+
+    def memoize_singlespace_python_matcher(self, program):
+        """
+        Wrapper for the singlespacer python regex matcher using memoizing        
+        """
+        if len(program) < 1:
+            return self.FITNESS_0
+        
+        compiled = self.toolbox.compile(expr=program)
+        pattern = compiled.spacer.insertInto(compiled.NE)
+        #print "PATTERN", pattern
+        if len(pattern) < 1:
+            return self.FITNESS_0
+        
+        if self.REVCOMP:
+            pattern = self.utils.add_reverse_complement(pattern)
+
+        fitness = self.memoize_or_python_match(pattern)
+        
+        return fitness
+    
     def memoize_python_matcher(self, program):
         """
         Wrapper for the python regex matcher using memoizing        
@@ -206,6 +227,9 @@ class STGPFitness(object):
         pattern = self.toolbox.compile(expr=program)        
         if len(pattern) < 1:
             return self.FITNESS_0
+
+        if 'X' in pattern: # The 'pathogenic' token
+            return self.FITNESS_0 
         
         if self.REVCOMP:
             pattern = self.utils.add_reverse_complement(pattern)

@@ -102,7 +102,6 @@ class Utils():
         expr = "".join(["["+x+"]" if len(x) > 1 else x for x in a_list])        
         return expr
 
-
     def load_datasets(self, 
                       path_pos, 
                       path_neg, 
@@ -161,14 +160,14 @@ class Utils():
         string = string.strip()
         for c in string:
             if flag == 1:
-                if c == ']':
+                if c in [']', '}']:
                     flag = 0
                     motif.append(buff)
                     buff = ""
                 else:
                     buff += c                
             else:
-                if c == '[':
+                if c in ['[', '{']:
                     flag = 1
                 else:
                     motif.append(c)

@@ -28,11 +28,10 @@ class Grammar(object):
 class AlphaGrammar(Grammar):
     def __init__(self):
         super(AlphaGrammar, self).__init__()
-        print "Creating pset for Regex"
         self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], str, "IN")
         self.pset.addPrimitive(operator.add, [str,str], str)        
 
-        # Alphabet of CHARs
+        # Characters of selected nucleotide alphabet
         for c in self.ALPHABET:
             self.pset.addTerminal(c, str)
             # Alphabet of Booleans
@@ -61,7 +60,7 @@ class SingleSpacerIUPACGrammar(Grammar):
             # Alphabet of Booleans
 
         # IUPAC Tokens
-        #self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
+        self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
         self.pset.addPrimitive(operator.and_, [bool, bool], bool)
         self.pset.addPrimitive(operator.or_, [bool, bool], bool)
         self.pset.addPrimitive(operator.not_, [bool], bool)
@@ -187,7 +186,6 @@ class IUPACRangeGrammar(AlphaRangeGrammar, IUPACGrammar):
 class PSSMGrammar(Grammar):
     def __init__(self):
         super(PSSMGrammar, self).__init__()
-        print " Creating pset for PSSMs"
         self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], list, "IN")
         self.pset.addPrimitive(operator.add, [list,list], list)   
         #self.pset.addPrimitive(operator.add, [int,int], int)  

@@ -144,6 +144,10 @@ if __name__ == "__main__":
                       help="Use automatic termination algorithm. User 'auto' to used the automatic termination algorithm for MOEAs.",
                       default=None)
 
+    parser.add_option("--steps", dest="steps",
+                      help="Grammar scafolding steps.",
+                      default=None)
+
 
 
     # Currently not used
@@ -218,7 +222,7 @@ if __name__ == "__main__":
     engine = Engine(OUTPUT_PATH=OUTPUT_PATH, fitness=options.fitness)
 
     if options.checkpoint_path:
-        engine.dna_pset(options)
+        engine.dna_pset(options.grammar) # FIXME: This gets overridden by boot()
         population, toolbox,start_gen,hof,logbook, rndstate, numpystate = evoalgo.explode_checkpoint(options.checkpoint_path, engine.pset)
         print "Checkpoint loaded"
 

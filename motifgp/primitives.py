@@ -26,7 +26,26 @@ class CharacterClass(str): pass
 class Nucleotide(str): pass
 
 class NetworkExpression(str):pass
-class SingleSpacerIUPACExpression(str):pass
+class SingleSpacerIUPACExpression(object):
+    def __init__(self, NE, spacer, *args, **kwargs):
+        #super(SingleSpacerIUPACExpression, self).__init__(*args, **kwargs)
+        self.NE = NE
+        self.spacer = spacer
+
+    def __str__(self):
+        return self.toString()
+
+    def toString(self):
+        return self.spacer.insertInto(self.NE)
+
+    def __contains__(self, other):
+        return other.NE in self.NE
+
+    def strip(self):
+        return self.toString()
+
+    
+        
 class rangeInt(int):pass
 class indexInt(int):pass
 
@@ -37,26 +56,59 @@ class Spacer(object):
         self.minimum = minimum
         self.maximum = maximum
         self.optional = optional
-
+    
     def __repr__(self):
         #return "<Spacer(): index:%s, minimum:%s, maximum:%s>" % (self.index, self.minimum, self.maximum)
         return "typed_spacer(%s,%s,%s)" % (self.index, self.minimum, self.maximum)
-    
+    """
     def __str__(self):
         return self.toString()
+    """
+
+    def motif_str_to_list(self, string):
+        """
+        Convert str to a list of of chars or charclasses
+        """
+        motif = []
+        flag = 0 # Charclass parsing
+        buff = ""
+        string = string.strip()
+        for c in string:
+            if flag == 1:
+                if c in [']', '}']:
+                    flag = 0
+                    motif.append(buff)
+                    buff = ""
+                else:
+                    buff += c                
+            else:
+                if c in ['[', '{']:
+                    flag = 1
+                else:
+                    motif.append(c)
+        motif = filter(bool, motif)
+        return motif
+
+    def list_to_regex_string(self, a_list):
+        """
+        Creates a regex string out of a list of regex tokens
+        """
+        expr = "".join(["["+x+"]" if len(x) > 1 else x for x in a_list])        
+        return expr
 
     def toString(self):
         return ".{"+str(self.minimum)+","+str(self.maximum)+"}"
 
-    def insertInto(self, string):
-        if len(string) <= 1 : return string
-        print "STRING",string
-        print "SELF.TOSTRING", self.toString()
+    def insertInto(self, _string):
+        string = self.motif_str_to_list(_string)
+        if len(string) <= 1 : return _string
+        #print "STRING",string
+        #print "SELF.TOSTRING", self.toString()
         optional = "?" if self.optional else ""
         space = str(self.toString())+optional
         safeIndex = (self.index % (len(string)) ) + 1
-        expression = string[:safeIndex]+space+string[safeIndex:]
-        print "EXPRESSION",expression, self.index , "out of", safeIndex, self.minimum, self.maximum
+        expression = self.list_to_regex_string(string[:safeIndex]) + space + self.list_to_regex_string(string[safeIndex:])
+        #print "EXPRESSION",expression , self.index , "out of", safeIndex, self.minimum, self.maximum
         return expression
     
     
@@ -99,8 +151,8 @@ def typed_conditional_anchor(N):
 
 ## Spacers
 def typed_singlespacer_iupac_expression(string, spacer):
-    print "spacer:",spacer, " into ", string
-    return SingleSpacerIUPACExpression(spacer.insertInto(string))
+
+    return SingleSpacerIUPACExpression(string, spacer)
 
 def typed_network_expression(string):
     return NetworkExpression(string)
@@ -140,7 +192,8 @@ def primitive_str_charclass(one,two,three,four):
 def primitive_charclass(A,C,T,G):
     charclass = ""
     if not any([A,C,G,T]):
-        charclass = "ACGT"
+        charclass = 'X'
+        
     if A: charclass += "A"
     if C: charclass += "C"
     if G: charclass += "G"

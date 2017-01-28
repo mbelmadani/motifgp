@@ -108,12 +108,18 @@ class Engine(STGPFitness):
         #deap.creator.create("FitnessMax", deap.base.Fitness, weights=self.FITNESS_WEIGHTS)    
         
     def boot(self, options):
-        self.dna_pset(options)
+        self.dna_pset(options.grammar)
         self.load_dataset(options)
         if not options.no_seed:
             pass
             #self.seed_population()
 
+    def reboot(self, grammar=None, dataset=None):
+        if grammar: self.dna_pset(grammar)
+        if dataset: pass # Not implemented
+        return
+
+            
     def run(self, NGEN=None):            
 
         if NGEN:
@@ -121,44 +127,70 @@ class Engine(STGPFitness):
         offspring, log = None, None
         if self.options.moo == "NSGAR":
             # Begin the generational process
-            
-            offspring, log = evoalgo.eaFortin(self.population, 
-                                              self.toolbox, 
-                                              mu= self.POP_SIZE, #Engine.NUM_OFFSPRING #int(math.ceil(self.POP_SIZE/2.0)),
-                                              cxpb=self.CXPB,
-                                              mutpb=self.MUTPB,
-                                              start_gen=self.START_GEN,
-                                              ngen=self.NGEN,
-                                              stats=self.mstats,
-                                              halloffame=self.hof,
-                                              invalid_ind=self.invalid_ind,
-                                              logbook=self.logbook,
-                                              CPOUT=self.OUTPUT_PATH,
-                                              checkpoint=self.options.checkpoint_path,
-                                              verbose=True,
-                                              timelimit=self.options.timelimit,
-                                              termination=self.options.termination
-                                              ) 
-            print "Memoized",self.memoize_count,"calls."
+            if not self.options.steps:
+                steps = [self.options.grammar]
+            else:
+                steps = self.options.steps.split(",")
+            print "STEPS:", steps
+
+
+            while len(steps) > 0:
+                grammar = steps[0] # FIXME Double assignment.
+                print "Grammar set to:", grammar
+                
+                offspring, log = evoalgo.eaFortin(self.population, 
+                                                  self.toolbox, 
+                                                  mu= self.POP_SIZE, #Engine.NUM_OFFSPRING #int(math.ceil(self.POP_SIZE/2.0)),
+                                                  cxpb=self.CXPB,
+                                                  mutpb=self.MUTPB,
+                                                  start_gen=self.START_GEN,
+                                                  ngen=self.NGEN,
+                                                  stats=self.mstats,
+                                                  halloffame=self.hof,
+                                                  invalid_ind=self.invalid_ind,
+                                                  logbook=self.logbook,
+                                                  CPOUT=self.OUTPUT_PATH,
+                                                  checkpoint=self.options.checkpoint_path,
+                                                  verbose=True,
+                                                  timelimit=self.options.timelimit,
+                                                  termination=self.options.termination
+                )
+                print "Memoized",self.memoize_count,"calls."
+
+                while len(steps) > 0 and grammar == steps[0]:
+                    steps = steps[1:] # Pop
+                    print "Terminated", grammar, ". Remaining: " , steps
+                if len(steps) == 0 : # FIXME
+                    break
+                print [self.toolbox.compile(x) for x in self.hof]
+                grammar = steps[0] # FIXME Double assignment.
+                print "REBOOTING TO", grammar
+                self.reboot(grammar=grammar)
+                self.set_experiment(self.experiment, self.options, self.mstats, self.logbook, None, None, self.population, self.invalid_ind, self.hof, START_GEN=0, POP_SIZE=self.options.popsize)                
+                print [self.toolbox.compile(x) for x in self.hof]
+                    
+                
         elif self.options.moo in ["SPEA2", "NSGA2"]:
-            offspring, log = evoalgo.checkpoint_eaMuPlusLambda(self.population, self.toolbox, 
-                                                               mu=self.POP_SIZE,
-                                                               #lambda_=int(math.ceil(self.POP_SIZE/2.0)),
-                                                               #lambda_=int(math.ceil(self.POP_SIZE/2.0)),
-                                                               lambda_=self.POP_SIZE,
-                                                               cxpb=self.CXPB,
-                                                               mutpb=self.MUTPB,
-                                                               start_gen=self.START_GEN,
-                                                               ngen=self.NGEN, 
-                                                               stats=self.mstats, 
-                                                               halloffame=self.hof,
-                                                               logbook=self.logbook,
-                                                               CPOUT=self.OUTPUT_PATH,
-                                                               checkpoint=self.options.checkpoint_path,
-                                                               verbose=True,
-                                                               timelimit=self.options.timelimit,
-                                                               termination=self.options.termination)
-            print "Memoized",self.memoize_count,"calls."
+
+                offspring, log = evoalgo.checkpoint_eaMuPlusLambda(self.population,
+                                                                   self.toolbox, 
+                                                                   mu=self.POP_SIZE,
+                                                                   lambda_=int(math.ceil(self.POP_SIZE/2.0)),
+                                                                   #lambda_=self.POP_SIZE,
+                                                                   cxpb=self.CXPB,
+                                                                   mutpb=self.MUTPB,
+                                                                   start_gen=self.START_GEN,
+                                                                   ngen=self.NGEN, 
+                                                                   stats=self.mstats, 
+                                                                   halloffame=self.hof,
+                                                                   logbook=self.logbook,
+                                                                   CPOUT=self.OUTPUT_PATH,
+                                                                   checkpoint=self.options.checkpoint_path,
+                                                                   verbose=True,
+                                                                   timelimit=self.options.timelimit,
+                                                                   termination=self.options.termination)
+                print "Memoized",self.memoize_count,"calls."
+            
         elif self.options.moo == "MOEAD":
             MU = self.POP_SIZE
             LAMBDA = 2 #TODO: Make this an input parameter
@@ -191,36 +223,35 @@ class Engine(STGPFitness):
 
 
 
-    def dna_pset(self, options):
+    def dna_pset(self, grammar):
         """ 
         Calls a grammar depending on the parameter
         """
         try: # FIXME: Limitation; Grammar can only be created once...    
-            grammar = None
-            if options.grammar in ["alpha"]:
+            if grammar in ["alpha"]:
                 grammar = AlphaGrammar()
-            elif options.grammar in ["iupac"]:
+            elif grammar in ["iupac"]:
                 grammar = IUPACGrammar()
-            elif options.grammar in ["alpharange"]:
+            elif grammar in ["alpharange"]:
                 grammar = AlphaRangeGrammar()
-            elif options.grammar in ["iupacrange"]:
+            elif grammar in ["iupacrange"]:
                 grammar = IUPACRangeGrammar()
-            elif options.grammar in ["ne"]:
+            elif grammar in ["ne"]:
                 grammar = NetworkExpressionGrammar()
-            elif options.grammar in ["pssm"]:
+            elif grammar in ["pssm"]:
                 grammar = PSSMGrammar()
-            elif options.grammar in ["conditional"]:
+            elif grammar in ["conditional"]:
                 grammar = ConditionalGrammar()
-            elif options.grammar in ["iupac_conditional"]:
+            elif grammar in ["iupac_conditional"]:
                 grammar = ConditionalIUPACGrammar()
-            elif options.grammar in ["iupac_singlespacer"]:
+            elif grammar in ["iupac_singlespacer"]:
                 grammar = SingleSpacerIUPACGrammar()
                 
             self.pset = grammar.get_pset()
 
         except Exception as e:
             print e.message            
-            print "Failed to create grammar. Using", self.pset
+            print "Failed to create grammar with '" + str(grammar) + "' . Using", self.pset
             raw_input()
                 
         return self.pset
@@ -433,6 +464,8 @@ class Engine(STGPFitness):
             # Set evaluation 
             if self.options.grammar == "pssm":
                 self.toolbox.register("evaluate", self.eval_pssm_match)
+            elif self.options.grammar == "iupac_singlespacer":
+                self.toolbox.register("evaluate", self.memoize_singlespace_python_matcher)
             else:
                 try:
                 #self.toolbox.register("evaluate", self.memoize_pfm_match)
