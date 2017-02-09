@@ -9,6 +9,7 @@ import deap
 
 from utils import Utils
 from instancer import Instancer
+import dummy
 
 from subprocess import Popen, PIPE
 import commands
@@ -232,21 +233,21 @@ class STGPFitness(object):
         pos_matchs = 0
         neg_matchs = 0
         
-        for s in self.re_positive_dataset:
+        for s in dummy.re_positive_dataset:
             m = regex.search(s) 
             if m:
                 pos_matchs += 1
                 
-        for s in self.re_negative_dataset:
+        for s in dummy.re_negative_dataset:
             m = regex.search(s)
             if m:
                 neg_matchs += 1
         
         fitnesses = []
         vals = [ pos_matchs, 
-                 len(self.re_positive_dataset),
+                 len(dummy.re_positive_dataset),
                  neg_matchs, 
-                 len(self.re_negative_dataset) 
+                 len(dummy.re_negative_dataset) 
         ]
 
         if DEBUG:
