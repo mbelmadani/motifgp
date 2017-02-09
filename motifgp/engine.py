@@ -15,6 +15,7 @@ import reseed
 import primitives
 from moead import MOEAD
 #import MOODS
+import dummy
 
 #import matrixevaluator
 from stgpfitness import STGPFitness
@@ -31,6 +32,10 @@ PATHOS = False
 try:
     from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.multiprocessing import cpu_count
+
+    import ctypes
+    from pathos.helpers import mp as multiprocess
+    
     PATHOS = True
 except:
     # Cannot use pathos for multiprocessing
@@ -411,13 +416,32 @@ class Engine(STGPFitness):
                 """
                 global PATHOS
                 if PATHOS:
+                    
+                    # Shared memory datasets
+                    tmpPositive = self.re_positive_dataset
+                    tmpNegative = self.re_negative_dataset
+
+                    print "Copying positive dataset to ctypes.c_char_p Array of size", len(tmpPositive)
+                    dummy.re_positive_dataset = multiprocess.Array(ctypes.c_char_p, len(tmpPositive))
+                    dummy.re_positive_dataset[:] = tmpPositive
+                    tmpPositive = None
+
+                    print "Copying negative dataset to ctypes.c_char_p Array of size", len(tmpNegative)
+                    dummy.re_negative_dataset = multiprocess.Array(ctypes.c_char_p, len(tmpNegative))
+                    dummy.re_negative_dataset[:] = tmpNegative
+                    tmpNegative = None                    
+
                     if self.options.ncpu == "auto":
 		        n_cpu = cpu_count()
                     else:
                         n_cpu = int(self.options.ncpu)
+                        
 		    print "Using pathos.multiprocessing with", n_cpu, "cpus."
-                    pool = Pool(n_cpu)
+                        
+                    pool = Pool(nodes=n_cpu)
+                    
                     self.toolbox.register("map", pool.map)
+                    
                 else:
                     print "WARNING: Failed to load pathos; using a single processor."
 
