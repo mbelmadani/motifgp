@@ -150,12 +150,17 @@ class STGPFitness(object):
         if len(pattern) < 1:
             return self.FITNESS_0
 
+        if 'X' in pattern: # The 'pathogenic' token
+            return self.FITNESS_0 
+        
         if self.REVCOMP:
             pattern = self.utils.add_reverse_complement(pattern)
+            
         fitness = self.memoize_or_grep(pattern)
+        
         return fitness
 
-    
+
     def do_grep(self, params):
         args = ["egrep", "-c"] + params
         output, error = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE ).communicate()
@@ -206,6 +211,9 @@ class STGPFitness(object):
         pattern = self.toolbox.compile(expr=program)        
         if len(pattern) < 1:
             return self.FITNESS_0
+        
+        if 'X' in pattern: # The 'pathogenic' token
+            return self.FITNESS_0         
         
         if self.REVCOMP:
             pattern = self.utils.add_reverse_complement(pattern)
@@ -324,7 +332,6 @@ class STGPFitness(object):
         pfm = self.ME.regex_to_pfm(pattern)
         pfm = [pfm]
         #print pfm
-
         p = self.ME.match(pfm)
         n = self.ME.match(pfm, negative=True)
 

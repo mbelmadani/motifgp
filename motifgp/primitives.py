@@ -93,7 +93,8 @@ def primitive_str_charclass(one,two,three,four):
 def primitive_charclass(A,C,T,G):
     charclass = ""
     if not any([A,C,G,T]):
-        charclass = "ACGT"
+        charclass = "X"
+        
     if A: charclass += "A"
     if C: charclass += "C"
     if G: charclass += "G"
