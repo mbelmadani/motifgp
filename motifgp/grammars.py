@@ -69,7 +69,7 @@ class SingleSpacerIUPACGrammar(Grammar):
 
         # Spacer Tokens
         ##Hardcoded into spacer        
-        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 7, 10, 1, 30 # TODO: Problem specific; Parameterize this for future use.
+        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 8, 10, 1, 30 # TODO: Problem specific; Parameterize this for future use.
         self.pset.addPrimitive(typed_singlespacer_iupac_expression, [NetworkExpression, Spacer], SingleSpacerIUPACExpression)
         self.pset.addEphemeralConstant("rangeInt", lambda: random.randint(RANGE_MIN, RANGE_MAX), rangeInt)
         self.pset.addEphemeralConstant("indexInt", lambda: random.randint(INDEX_MIN, INDEX_MAX), indexInt)

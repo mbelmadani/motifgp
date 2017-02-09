@@ -39,10 +39,15 @@ class SingleSpacerIUPACExpression(object):
         return self.spacer.insertInto(self.NE)
 
     def __contains__(self, other):
+        # TODO: A better similarity check could be used.
         return other.NE in self.NE
 
+
+    def __len__(self):
+        return len(self.NE)
+    
     def strip(self):
-        return self.toString()
+        return self.toString().strip()
 
     
         

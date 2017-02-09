@@ -124,7 +124,7 @@ if __name__ == "__main__":
                       help="Replace tandem repeats (lower-case typed nucleotides) by N")
 
     parser.add_option("-g", "--grammar", dest="grammar", type="str",
-                      help="Grammar for the STGP [min, iupac, full, ne]. Default is iupac. 'min' only uses nucleotides. 'iupac' is a network expression grammar. 'full' is a network expression grammar with additional regular expression tokens. 'ne' is like iupac, but built with string primitives instead of booleans.", default="iupac")
+                      help="Grammar for the STGP [min, iupac, full, ne]. Default is iupac. 'min' only uses nucleotides. 'iupac' is a network expression grammar. 'full' is a network expression grammar with additional regular expression tokens. 'ne' is like iupac, but built with string primitives instead of booleans.", default=None)
 
     parser.add_option("-e", "--erase", dest="erase",
                       help="Input .nef(t) file to delete from the dataset prior to execution. Used for sequential coverage.", default=None)
@@ -184,6 +184,11 @@ if __name__ == "__main__":
         if not os.path.exists(OUTPUT_PATH):
             os.makedirs(OUTPUT_PATH)
 
+    if not options.grammar and not options.steps:
+        options.grammar = "iupac"
+    elif not options.grammar and options.steps:
+        options.grammar = options.steps.split(",")[0]
+    
     print "Options:"
     print ast.literal_eval(options.__str__())
     #print [ x.get_opt_string() for x in parser._get_all_options()[1:]]
