@@ -198,6 +198,7 @@ def primitive_charclass(A,C,T,G):
     charclass = ""
     if not any([A,C,G,T]):
         charclass = 'X'
+
         
     if A: charclass += "A"
     if C: charclass += "C"
