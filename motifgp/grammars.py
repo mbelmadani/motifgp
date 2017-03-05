@@ -34,7 +34,7 @@ class AlphaGrammar(Grammar):
         # Characters of selected nucleotide alphabet
         for c in self.ALPHABET:
             self.pset.addTerminal(c, str)
-            # Alphabet of Booleans
+
 
 class IUPACGrammar(AlphaGrammar):
     def __init__(self):
@@ -47,19 +47,25 @@ class IUPACGrammar(AlphaGrammar):
 
         self.pset.addTerminal(True, bool)
         self.pset.addTerminal(False, bool)
-            
-class SingleSpacerIUPACGrammar(Grammar):
+
+class NetworkExpressionGrammar(AlphaGrammar):
+    def __init__(self):
+        # Adds nucleotides and concatenantions
+        super(NetworkExpressionGrammar, self).__init__()
+        # CharClasses
+        self.pset.addPrimitive(primitive_str_charclass, [str,str,str,str], str)
+
+class SingleSpacerIUPACGrammar(NetworkExpressionGrammar):
     def __init__(self):
         super(SingleSpacerIUPACGrammar, self).__init__()
+        # CharClasses
         self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], SingleSpacerIUPACExpression, "IN")
         self.pset.addPrimitive(operator.add, [str,str], str)        
-        
+
         # Alphabet of CHARs
         for c in self.ALPHABET:
             self.pset.addTerminal(c, str)
-            # Alphabet of Booleans
 
-        # IUPAC Tokens
         self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
         self.pset.addPrimitive(operator.and_, [bool, bool], bool)
         self.pset.addPrimitive(operator.or_, [bool, bool], bool)
@@ -69,7 +75,7 @@ class SingleSpacerIUPACGrammar(Grammar):
 
         # Spacer Tokens
         ##Hardcoded into spacer        
-        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 8, 10, 1, 30 # TODO: Problem specific; Parameterize this for future use.
+        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 23, 23, 1, 30 # TODO: Problem specific; Parameterize this for future use.
         self.pset.addPrimitive(typed_singlespacer_iupac_expression, [NetworkExpression, Spacer], SingleSpacerIUPACExpression)
         self.pset.addEphemeralConstant("rangeInt", lambda: random.randint(RANGE_MIN, RANGE_MAX), rangeInt)
         self.pset.addEphemeralConstant("indexInt", lambda: random.randint(INDEX_MIN, INDEX_MAX), indexInt)
@@ -77,7 +83,11 @@ class SingleSpacerIUPACGrammar(Grammar):
         self.pset.addPrimitive(typed_network_expression, [str], NetworkExpression)
 
         self.pset.addTerminal(NetworkExpression(""), NetworkExpression)
-        self.pset.addTerminal(Spacer(0,0,0), Spacer)
+        self.pset.addTerminal(Spacer(0,
+                                     1000,
+                                     1000
+                                     ),
+                              Spacer)
 
         ## TODO:FIXME: Can cause bloat
         def nothing(number):
@@ -162,13 +172,6 @@ class ConditionalGrammar(Grammar):
         #self.pset.addPrimitive(typed_conditional_nucleotide,
         #                       [str],
         #                       Nucleotide)
-        
-class NetworkExpressionGrammar(AlphaGrammar):
-    def __init__(self):
-        # Adds nucleotides and concatenantions
-        super(NetworkExpressionGrammar, self).__init__()
-        # CharClasses
-        self.pset.addPrimitive(primitive_str_charclass, [str,str,str,str], str)
         
  
 class AlphaRangeGrammar(AlphaGrammar):
