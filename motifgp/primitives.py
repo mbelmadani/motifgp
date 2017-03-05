@@ -187,9 +187,9 @@ def primitive_str_charclass(one,two,three,four):
     charclass = ""
 
     if len(charclass)==0:
-       args = ['A','C','G','T']		
+        charclass='X'
 
-    for x in ALPHABET:
+    for x in ['A','C','G','T']:
         if x in args:
             charclass += x
     return "["+charclass+"]"
