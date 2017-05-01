@@ -8,7 +8,8 @@ Original author: Manuel Belmadani
 
 The project is documented by the following publications.
 
-Manuel Belmadani and Marcel Turcotte. (In press) MotifGP: Using multi-objective evolutionary computing for mining network expressions in DNA sequences. In IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB 2016), Chiang Mai, Thailand, October, 5-7, 2016. Preprint available upon request.
+Manuel Belmadani and Marcel Turcotte. MotifGP: Using multi-objective evolutionary computing for mining network expressions in DNA sequences. In IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB 2016), Chiang Mai, Thailand, October, 5-7, 2016. 
+https://doi.org/10.1109/CIBCB.2016.7758133
 
 Manuel Belmadani. MotifGP: DNA motif discovery using multiobjective evolution. Master of computer science, University of Ottawa, School of Electrical Engineering and Computer Science, 2016. Available from University of Ottawa Research under: http://www.ruor.uottawa.ca/handle/10393/34213
 
