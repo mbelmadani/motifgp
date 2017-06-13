@@ -1,4 +1,5 @@
 from nose.tools import assert_equals
+from nose.tools import assert_not_equals
 from nose.tools import assert_is_none
 from nose.tools import assert_is_not_none
 
@@ -97,7 +98,9 @@ def test_reverse_completement():
     assert_equals(u.add_reverse_complement(REGEX), str(REGEX + "|" + RC))
 
     # Test appending reverse complement to spacer regex
-    assert_equals(u.add_reverse_complement(REGEX_SPACER), str(REGEX_SPACER + "|" + RC_SPACER))
+    # The order should be as so, because it returns a sorted concatenation.
+    assert_equals(u.add_reverse_complement(REGEX_SPACER), str(RC_SPACER + "|" + REGEX_SPACER))
+    assert_not_equals(u.add_reverse_complement(REGEX_SPACER), str(REGEX_SPACER + "|" + RC_SPACER))
     
 
 #UNTESTED

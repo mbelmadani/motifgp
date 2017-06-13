@@ -197,6 +197,7 @@ class Utils():
             # Identify if the regex has special patterns
             # Codes: 0 - Network expression
             #       10 - Has a spacer
+
             HAS_SPACER = 10
             
             ret = 0 # 
@@ -209,58 +210,19 @@ class Utils():
         pattern_with_rc = None
         if level == 0 :
             pattern_with_rc = "|".join(sorted([pattern, self.reverse_complement(pattern)]))
-        elif level == 10 :
+        elif level == 10 : # TODO: Remove me if RC works with reverse_complement(), this won't used anymore if so.
             """
             Compute reverse complement for each half (a and c)
             Split reverse complement on OR (the pipe | symbol)  and join each end with the reverse of the other by anothr OR.
             """
-            try:
-                a, bc = pattern.split(".{")
-                b,c = bc.split("}")
-                a = "|".join(sorted([a, self.reverse_complement(a)]))
-                c = "|".join(sorted([c, self.reverse_complement(c)]))
-
-        
-                ax,ay = a.split("|")
-                cx,cy = c.split("|")
-
-                if not all([ax,cy]):
-                    a = ax + cy
-                else:
-                    a = ax.join(["(",")"]) +"|"+ cy.join(["(",")"])
-
-                if not all([cx,ay]):                    
-                    c = cx + ay
-                else:
-                    c = cx.join(["(",")"]) + "|" + ay.join(["(",")"])
-
-                a = a.join(["(",")"])
-                c = c.join(["(",")"])
-                
-                pattern_with_rc = a+".{"+b+"}"+c
-        
-            except Exception as e:
-                print "Error computing spacer reverse complement for:"
-                print " pattern:"
-                print pattern
-                print " a,b,c:"
-                print a, self.reverse_complement(a)
-                print b
-                print c, self.reverse_complement(c)
-                print "print pattern_with_rc", pattern_with_rc
-                print "ax, cy"
-                print ax, cy
-                print "cx, ay"
-                print cx, ay                
-                print "Message:"
-                
-                print e, e.message
-                raise e
+            revcomp = "".join([self.complement.get(c) if c in self.complement.keys() else c for c in reversed(pattern) ])
+            a,b,c = revcomp.replace(".", "").replace("{", "}").split("}")
+            revcomp = a + ".{"+b[::-1]+"}" + c
+            pattern_with_rc = "|".join(sorted([pattern, revcomp]))
         else:
             print "Error: No known way to compute the reverse complement for pattern combination level:",level
             raise Exception("Error: Error: No known way to compute the reverse complement for pattern level:"+level)
         return pattern_with_rc
-        #return c+b+a
 
     def motif_eraser(self, dataset, patterns ):
         """
