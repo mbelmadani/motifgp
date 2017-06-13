@@ -73,7 +73,7 @@ class Spacer(object):
     def motif_str_to_list(self, string):
         """
         Convert str to a list of of chars or charclasses
-        """
+        """        
         motif = []
         flag = 0 # Charclass parsing
         buff = ""
@@ -102,6 +102,9 @@ class Spacer(object):
         return expr
 
     def toString(self):
+        if self.index == -1:
+            return "X"
+
         return ".{"+str(self.minimum)+","+str(self.maximum)+"}"
 
     def insertInto(self, _string):
@@ -111,7 +114,9 @@ class Spacer(object):
         #print "SELF.TOSTRING", self.toString()
         optional = "?" if self.optional else ""
         space = str(self.toString())+optional
-        safeIndex = (self.index % (len(string)) ) + 1
+        safeIndex = (self.index % (len(string)-1 ) +1)  # Not at first or last position.
+        #safeIndex = (self.index % (len(string) - 1 ) )  # Not at last position.
+        #safeIndex = (self.index % len(string) )  # within string or on the edge
         expression = self.list_to_regex_string(string[:safeIndex]) + space + self.list_to_regex_string(string[safeIndex:])
         #print "EXPRESSION",expression , self.index , "out of", safeIndex, self.minimum, self.maximum
         return expression
@@ -204,8 +209,11 @@ def primitive_charclass(A,C,T,G):
     if C: charclass += "C"
     if G: charclass += "G"
     if T: charclass += "T"        
-
-    return "["+charclass+"]"
+    cc = charclass
+    if len(cc) == 1:
+        return charclass
+    else:
+        return "["+charclass+"]"
 
     
 def primitive_position(A,C,G,T):

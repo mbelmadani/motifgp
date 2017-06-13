@@ -70,7 +70,24 @@ def test_objectives():
               "CCC",
               "AA[ACGT]CC[ACGT]"]
 
-    
+    regexs = [  "[ACG][CT]C[ACT]TC[GT][AG]",
+		"GC[ACG]CTCT",
+		"[G][CT]CC[T]CT",
+		"GC[ACG]C[T]CT",
+		"GCCC[T][CT]T",
+		"T[AGT]CC[CT][T]CT",
+		"G[CT]CC[T]CT",
+		"[G][C][ACG]C[T]CT",
+		"GCC[CGT][T]CT",
+		"GCC[CT][T][C]T",
+		"[G]CC[CT][T]CT",
+		"GCC[CT][T]CT",
+		"GCC[CT][T][ACT]T",
+		"[CG][C][CGT]C[T]CT",
+		"[CG]C[CG]C[T]CT",
+		"[CG][C][CG]C[T]CT",
+		"[G]C[CG]C[CT]CT",
+	        "CC[AT]CTA"]
     options = Object()
     options.training_path = "tests/resources/sample_ctcf.fasta"
     options.background_path = None
@@ -83,6 +100,8 @@ def test_objectives():
 
     for regex in regexs:
         python_score = stgp.memoize_or_python_match(regex)
+	print(python_score)
+	
         assert_almost_equals(float(sprint_logx(python_score[0], 10, "%6.10fe%-5.0f")),
                                  python_score[1])
         assert_almost_equals(python_score[2], python_score[3])

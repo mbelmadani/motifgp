@@ -66,7 +66,8 @@ class Engine(STGPFitness):
         super(Engine, self).__init__(fitness)
 
         self.experiment=experiment 
-        self.options=options 
+        self.options=options
+        
         self.mstats=mstats 
         self.logbook=logbook
         self.creator=creator
@@ -245,12 +246,13 @@ class Engine(STGPFitness):
             elif grammar in ["iupac_conditional"]:
                 grammar = ConditionalIUPACGrammar()
             elif grammar in ["iupac_singlespacer"]:
-                grammar = SingleSpacerIUPACGrammar()
+                RANGE_MIN, RANGE_MAX = [int(x) for x in self.options.spacer.split(",")]
+                grammar = SingleSpacerIUPACGrammar(RANGE_MIN, RANGE_MAX)
                 
             self.pset = grammar.get_pset()
 
         except Exception as e:
-            print e.message            
+            print e.message
             print "Failed to create grammar with '" + str(grammar) + "' . Using", self.pset
             raw_input()
                 
@@ -501,8 +503,8 @@ class Engine(STGPFitness):
                 #self.toolbox.register("evaluate", self.eval_pfm_match)
                 #self.toolbox.register("evaluate", self.eval_precomputed_pfm_matches)
             
-            #self.toolbox.register("mate", deap.gp.cxOnePoint)
-            self.toolbox.register("mate", deap.gp.cxOnePointLeafBiased, termpb=0.1 )
+            self.toolbox.register("mate", deap.gp.cxOnePoint)
+            #self.toolbox.register("mate", deap.gp.cxOnePointLeafBiased, termpb=0.1 )
             self.toolbox.register("expr_mut", deap.gp.genGrow, min_=1, max_=4, pset=self.pset)
             self.toolbox.register("mutate", deap.gp.mutUniform, expr=self.toolbox.expr_mut, pset=self.pset)
             #self.toolbox.register("mutate", self.multimutate, pset=self.pset)

@@ -11,7 +11,9 @@ class Utils():
                            'G': 'C', 
                            'T': 'A',
                            '[': ']',
-                           ']': '['
+                           ']': '[',
+                           'X': 'X',
+                           'N': 'N'
                        } 
     
     def readfasta(self, filepath, HARDMASK=False): 
@@ -99,6 +101,8 @@ class Utils():
         """
         Creates a regex string out of a list of regex tokens
         """
+        if not a_list:
+            return ""
         expr = "".join(["["+x+"]" if len(x) > 1 else x for x in a_list])        
         return expr
 
@@ -189,8 +193,74 @@ class Utils():
     def add_reverse_complement(self, pattern):
         # Append reverse complment to the pattern
         # Sorting to return consistant key on cache, even if complement is given next.
-        merge = "|".join(sorted([pattern, self.reverse_complement(pattern)]))
-        return merge
+        def is_complex(pattern):
+            # Identify if the regex has special patterns
+            # Codes: 0 - Network expression
+            #       10 - Has a spacer
+            HAS_SPACER = 10
+            
+            ret = 0 # 
+            if "{" in pattern:
+                ret += HAS_SPACER
+
+            return ret
+
+        level = is_complex(pattern)
+        pattern_with_rc = None
+        if level == 0 :
+            pattern_with_rc = "|".join(sorted([pattern, self.reverse_complement(pattern)]))
+        elif level == 10 :
+            """
+            Compute reverse complement for each half (a and c)
+            Split reverse complement on OR (the pipe | symbol)  and join each end with the reverse of the other by anothr OR.
+            """
+            try:
+                a, bc = pattern.split(".{")
+                b,c = bc.split("}")
+                a = "|".join(sorted([a, self.reverse_complement(a)]))
+                c = "|".join(sorted([c, self.reverse_complement(c)]))
+
+        
+                ax,ay = a.split("|")
+                cx,cy = c.split("|")
+
+                if not all([ax,cy]):
+                    a = ax + cy
+                else:
+                    a = ax.join(["(",")"]) +"|"+ cy.join(["(",")"])
+
+                if not all([cx,ay]):                    
+                    c = cx + ay
+                else:
+                    c = cx.join(["(",")"]) + "|" + ay.join(["(",")"])
+
+                a = a.join(["(",")"])
+                c = c.join(["(",")"])
+                
+                pattern_with_rc = a+".{"+b+"}"+c
+        
+            except Exception as e:
+                print "Error computing spacer reverse complement for:"
+                print " pattern:"
+                print pattern
+                print " a,b,c:"
+                print a, self.reverse_complement(a)
+                print b
+                print c, self.reverse_complement(c)
+                print "print pattern_with_rc", pattern_with_rc
+                print "ax, cy"
+                print ax, cy
+                print "cx, ay"
+                print cx, ay                
+                print "Message:"
+                
+                print e, e.message
+                raise e
+        else:
+            print "Error: No known way to compute the reverse complement for pattern combination level:",level
+            raise Exception("Error: Error: No known way to compute the reverse complement for pattern level:"+level)
+        return pattern_with_rc
+        #return c+b+a
 
     def motif_eraser(self, dataset, patterns ):
         """

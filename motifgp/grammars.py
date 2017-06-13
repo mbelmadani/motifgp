@@ -56,15 +56,18 @@ class NetworkExpressionGrammar(AlphaGrammar):
         self.pset.addPrimitive(primitive_str_charclass, [str,str,str,str], str)
 
 class SingleSpacerIUPACGrammar(NetworkExpressionGrammar):
-    def __init__(self):
+    def __init__(self,
+                 RANGE_MIN=22, RANGE_MAX=22,
+                 INDEX_MIN = 1, INDEX_MAX = 30):
         super(SingleSpacerIUPACGrammar, self).__init__()
         # CharClasses
         self.pset = deap.gp.PrimitiveSetTyped("MAIN", [], SingleSpacerIUPACExpression, "IN")
         self.pset.addPrimitive(operator.add, [str,str], str)        
 
         # Alphabet of CHARs
-        for c in self.ALPHABET:
+        for c in self.ALPHABET:           
             self.pset.addTerminal(c, str)
+            self.pset.addTerminal(NetworkExpression(c), NetworkExpression)
 
         self.pset.addPrimitive(primitive_charclass, [bool, bool, bool, bool], str)        
         self.pset.addPrimitive(operator.and_, [bool, bool], bool)
@@ -74,24 +77,20 @@ class SingleSpacerIUPACGrammar(NetworkExpressionGrammar):
         self.pset.addTerminal(False, bool)
 
         # Spacer Tokens
-        ##Hardcoded into spacer        
-        RANGE_MIN, RANGE_MAX, INDEX_MIN, INDEX_MAX = 23, 23, 1, 30 # TODO: Problem specific; Parameterize this for future use.
+        ##Hardcoded into spacer
         self.pset.addPrimitive(typed_singlespacer_iupac_expression, [NetworkExpression, Spacer], SingleSpacerIUPACExpression)
         self.pset.addEphemeralConstant("rangeInt", lambda: random.randint(RANGE_MIN, RANGE_MAX), rangeInt)
         self.pset.addEphemeralConstant("indexInt", lambda: random.randint(INDEX_MIN, INDEX_MAX), indexInt)
         self.pset.addPrimitive(typed_spacer, [indexInt, rangeInt, rangeInt], Spacer)
         self.pset.addPrimitive(typed_network_expression, [str], NetworkExpression)
 
-        self.pset.addTerminal(NetworkExpression(""), NetworkExpression)
-        self.pset.addTerminal(Spacer(0,
-                                     1000,
-                                     1000
-                                     ),
-                              Spacer)
-
+        #self.pset.addTerminal(NetworkExpression(""), NetworkExpression)
+        self.pset.addTerminal(Spacer(-1,0,0), Spacer)
+        
         ## TODO:FIXME: Can cause bloat
         def nothing(number):
             return number
+        
         self.pset.addPrimitive(nothing, [rangeInt], rangeInt)
         self.pset.addPrimitive(nothing, [indexInt], indexInt)
         ##                              

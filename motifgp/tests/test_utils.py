@@ -87,11 +87,17 @@ def test_reverse_completement():
     REGEX = "AAA[AC]TT[A]"
     RC = "[T]AA[GT]TTT"
 
+    REGEX_SPACER = "[CT]G.{8,10}GATAA"
+    RC_SPACER = "TTATC.{8,10}C[AG]"
+
     # Test conversion from regex to reverse complement
     assert_equals(u.reverse_complement(REGEX), RC)
 
     # Test appending reverse complement to regex
     assert_equals(u.add_reverse_complement(REGEX), str(REGEX + "|" + RC))
+
+    # Test appending reverse complement to spacer regex
+    assert_equals(u.add_reverse_complement(REGEX_SPACER), str(REGEX_SPACER + "|" + RC_SPACER))
     
 
 #UNTESTED

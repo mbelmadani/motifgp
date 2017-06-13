@@ -144,6 +144,10 @@ if __name__ == "__main__":
                       help="Use automatic termination algorithm. User 'auto' to used the automatic termination algorithm for MOEAs.",
                       default=None)
 
+    parser.add_option("--spacer", dest="spacer",
+                      help="Size of the spacer (e.g. '4,7' means between 4 and 7 inclusively.)",
+                      default=None)
+    
     parser.add_option("--steps", dest="steps",
                       help="Grammar scafolding steps.",
                       default=None)
@@ -188,6 +192,11 @@ if __name__ == "__main__":
         options.grammar = "iupac"
     elif not options.grammar and options.steps:
         options.grammar = options.steps.split(",")[0]
+
+    if (options.spacer and options.grammar != "iupac_singlespacer") or \
+       (not options.spacer and options.grammar == "iupac_singlespacer") :
+       print "--spacer must be set when using iupac_singlespacer."
+       exit(-1)
     
     print "Options:"
     print ast.literal_eval(options.__str__())
@@ -224,7 +233,7 @@ if __name__ == "__main__":
 
     utils = Utils()
 
-    engine = Engine(OUTPUT_PATH=OUTPUT_PATH, fitness=options.fitness)
+    engine = Engine(OUTPUT_PATH=OUTPUT_PATH, fitness=options.fitness, options = options)
 
     if options.checkpoint_path:
         engine.dna_pset(options.grammar) # FIXME: This gets overridden by boot()

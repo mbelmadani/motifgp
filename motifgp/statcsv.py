@@ -19,18 +19,52 @@ def write_nef(path, engine=None):
         writer = csv.writer(nef_out, delimiter='\t')
         writer.writerow(header)
 
-        count = 0
-        front = engine.hof
-        for ind in front:
-            pattern = engine.toolbox.compile(expr=ind)
-            if len(u.motif_str_to_list(pattern)) < 5:
-                continue # Skip motifs shorter than length 5
 
-            score =  [float(x) for x in ind.fitness.getValues()]
-            candidate = [count, pattern] + score
+        count = 0
+        _front = engine.hof
+        front = []
+        counter=0
+        uniquepatterns = []
+        for ind in _front:
+            pattern = str(engine.toolbox.compile(expr=ind))
+            if pattern in uniquepatterns:
+                continue
+            else:
+                uniquepatterns.append(pattern)            
+            score =  [str(float(x)) for x in ind.fitness.getValues()]
+            candidate = [str(count), pattern] + score            
+            front += [candidate]            
             count += 1
+
+        for candidate in front:            
             writer.writerow(candidate)
-    print "NEF File written at", nef_path
+            
+    print ".nef file written at", nef_path
+
+
+    if engine.REVCOMP:
+        nefrc_path = nef_path+"rc"
+        with open( nefrc_path, 'w') as nef_out:
+            writer_rc = csv.writer(nef_out, delimiter='\t')
+            writer_rc.writerow(header)
+            count = 0
+
+            front = engine.hof
+            for compiled in uniquepatterns:
+                if type(compiled) != str: #FIXME
+                    pattern = compiled.spacer.insertInto(compiled.NE)
+                else:
+                    pattern  = compiled
+                    
+                if len(pattern) > 1:
+                    pattern = u.add_reverse_complement(pattern)
+                
+                score =  [float(x) for x in ind.fitness.getValues()]
+                candidate = [count, pattern] + score
+                count += 1
+                writer_rc.writerow(candidate)
+
+        print ".nef file w/ revcomp written at", nefrc_path
 
 def write_log(path, log):
     stats_path = path + ".stats"

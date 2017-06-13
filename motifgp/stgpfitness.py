@@ -194,7 +194,8 @@ class STGPFitness(object):
         vals = [ pos_matchs, 
                  len(self.re_positive_dataset),
                  neg_matchs, 
-                 len(self.re_negative_dataset) 
+                 len(self.re_negative_dataset),
+                 pattern
         ]
         for f in self.FITNESS_FUNCTIONS:
             fitnesses.append( f(*vals) ) 
@@ -215,8 +216,17 @@ class STGPFitness(object):
         if len(pattern) < 1:
             return self.FITNESS_0
         
+        if 'X' in pattern: # The 'pathogenic' token
+            return self.FITNESS_0         
+        
         if self.REVCOMP:
-            pattern = self.utils.add_reverse_complement(pattern)
+            try:
+                pattern = self.utils.add_reverse_complement(pattern)
+            except Exception as e:
+                print "Exception in stgpfitness.py"
+                print e, e.message
+                print "pattern:", pattern
+                raise e
 
         fitness = self.memoize_or_python_match(pattern)
         
@@ -235,9 +245,6 @@ class STGPFitness(object):
 
         if 'X' in pattern: # The 'pathogenic' token
             return self.FITNESS_0 
-        
-        if 'X' in pattern: # The 'pathogenic' token
-            return self.FITNESS_0         
         
         if self.REVCOMP:
             pattern = self.utils.add_reverse_complement(pattern)
@@ -270,7 +277,8 @@ class STGPFitness(object):
         vals = [ pos_matchs, 
                  len(self.re_positive_dataset),
                  neg_matchs, 
-                 len(self.re_negative_dataset) 
+                 len(self.re_negative_dataset),
+                 pattern
         ]
 
         if DEBUG:
