@@ -1,7 +1,7 @@
 To run theses examples, you will need fasta files to run as input. You can download peaks from T. Bailey's website under the supplemental material for DREME:
 
-Directory: http://tlbailey.bitbucket.org/supplementary_data/Bailey2011/
-Full set: http://tlbailey.bitbucket.org/supplementary_data/Bailey2011/CHEN.tgz
+Directory: https://tlbailey.bitbucket.io/supplementary_data/Bailey2011/
+Full set: https://tlbailey.bitbucket.io/supplementary_data/Bailey2011/CHEN.tgz
 
 We will assume that a directory named CHEN contains the fasta sequences under files with the .pos.fasta extension
 
