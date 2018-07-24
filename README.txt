@@ -8,16 +8,22 @@ Original author: Manuel Belmadani
 
 The project is documented by the following publications.
 
-Manuel Belmadani and Marcel Turcotte. MotifGP: Using multi-objective evolutionary computing for mining network expressions in DNA sequences. In IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB 2016), Chiang Mai, Thailand, October, 5-7, 2016. 
+Manuel Belmadani and Marcel Turcotte. MotifGP: Using multi-objective evolutionary computing for mining network expressions
+in DNA sequences. In IEEE International Conference on Computational Intelligence in Bioinformatics and Computational Biology
+(CIBCB 2016), Chiang Mai, Thailand, October, 5-7, 2016. 
 https://doi.org/10.1109/CIBCB.2016.7758133
 
-Manuel Belmadani. MotifGP: DNA motif discovery using multiobjective evolution. Master of computer science, University of Ottawa, School of Electrical Engineering and Computer Science, 2016. Available from University of Ottawa Research under: http://www.ruor.uottawa.ca/handle/10393/34213
+Manuel Belmadani. MotifGP: DNA motif discovery using multiobjective evolution. Master of computer science, 
+University of Ottawa, School of Electrical Engineering and Computer Science, 2016. 
+Available from University of Ottawa Research under: http://www.ruor.uottawa.ca/handle/10393/34213
 
 Acknowledgements:
 MotifGP is using source code from these tools:
 -hypergeometric.py from the MEME Suite (License and copyright in source file).
 -altschulEriksonDinuclShuffle.py from Peter Clote - CLOTE Computational Biology LAB, http://clavius.bc.edu/~clotelab/RNAdinucleotideShuffle/
-This software was also made using the DEAP - Fortin, F.-A., De Rainville, F.-M., Gardner, M.-A. G., Parizeau, M. & Gagné, C. DEAP: Evolutionary Algorithms Made Easy. J. Mach. Learn. Res. 13, 2171–2175 (2012).
+This software was also made using the DEAP - Fortin, F.-A., De Rainville, F.-M., Gardner, M.-A. G., 
+Parizeau, M. & Gagné, C. DEAP: Evolutionary Algorithms Made Easy. J. Mach. Learn. Res. 13, 
+2171–2175 (2012).
 
 =======================================================================================
 License: (see LICENSE.txt)
